@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Table(name = "appointments")
@@ -20,15 +21,15 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "barber_service_id", nullable = false)
     private BarberService barberService;
 
@@ -45,5 +46,19 @@ public class Appointment {
         this.barberService = barberService;
         this.appointmentDate = appointmentDate;
         this.status = AppointmentStatus.SCHEDULED;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Appointment appointment = (Appointment) o;
+        if(this.id == null || appointment.id == null) return false;
+        return Objects.equals(getId(), appointment.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        if(this.id == null) return 0;
+        return Objects.hashCode(getId());
     }
 }

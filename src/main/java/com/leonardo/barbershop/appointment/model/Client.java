@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 
 @Table(name = "clients")
@@ -40,5 +41,19 @@ public class Client {
         this.email = email;
         this.phone = phone;
         this.birthDate = birthDate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Client client = (Client) o;
+        if(this.id == null || client.getId() == null) return false;
+        return Objects.equals(getId(), client.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        if(this.id == null) return 0;
+        return Objects.hashCode(getId());
     }
 }

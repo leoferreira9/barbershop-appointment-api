@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.UUID;
 
 @Table(name = "barber_services")
@@ -40,5 +41,19 @@ public class BarberService {
         this.price = price;
         this.durationMinutes = durationMinutes;
         this.active = true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        BarberService barberService = (BarberService) o;
+        if(this.id == null || barberService.id == null) return false;
+        return Objects.equals(getId(), barberService.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        if(this.id == null) return 0;
+        return Objects.hashCode(getId());
     }
 }
