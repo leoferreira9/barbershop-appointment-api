@@ -1,5 +1,6 @@
 package com.leonardo.barbershop.appointment.dto.appointment;
 
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,5 +27,6 @@ public class AppointmentRequest {
     private UUID barberServiceId;
 
     @NotNull
+    @Future
     private LocalDateTime appointmentDate;
 }
