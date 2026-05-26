@@ -1,0 +1,30 @@
+package com.leonardo.barbershop.appointment.dto.employee;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class EmployeeUpdateRequest {
+    @NotBlank
+    @Size(max = 150)
+    private String name;
+
+    @NotBlank
+    @Size(max = 20)
+    @Pattern(regexp = "^(?:\\+?55\\s?)?(?:\\(?([1-9][0-9])\\)?\\s?)?(?:((?:9\\d|[2-9])\\d{3})\\-?(\\d{4}))$")
+    private String phone;
+
+    @NotBlank
+    @Email
+    @Size(max = 256)
+    private String email;
+}
