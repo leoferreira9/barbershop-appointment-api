@@ -1,23 +1,32 @@
 package com.leonardo.barbershop.appointment.dto.barberservice;
 
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-public class BarberServiceResponse {
-
-    private UUID id;
+public class BarberServiceUpdateRequest {
+    @NotBlank
+    @Size(max = 150)
     private String name;
+
+    @Size(max = 200)
     private String description;
+
+    @NotNull
+    @Positive
+    @Digits(integer = 6, fraction = 2)
     private BigDecimal price;
-    private int durationMinutes;
-    private boolean active;
+
+    @NotNull
+    @Min(value = 10)
+    @Max(value = 90)
+    private Integer durationMinutes;
 }
