@@ -58,9 +58,7 @@ public class BarberServiceController {
     }
 
     @Operation(summary = "Find all barber services", description = "Returns all barber services")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Barber services successfully found")
-    })
+    @ApiResponse(responseCode = "200", description = "Barber services successfully found")
     @GetMapping
     public ResponseEntity<List<BarberServiceResponse>> findAll(){
         return ResponseEntity.ok(service.findAll());

@@ -59,9 +59,7 @@ public class ClientController {
     }
 
     @Operation(summary = "Find all clients", description = "Returns all clients")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Clients successfully found")
-    })
+    @ApiResponse(responseCode = "200", description = "Clients successfully found")
     @GetMapping
     public ResponseEntity<List<ClientResponse>> findAll(){
         return ResponseEntity.ok(service.findAll());
