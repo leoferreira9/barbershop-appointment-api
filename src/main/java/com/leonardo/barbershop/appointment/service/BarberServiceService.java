@@ -4,6 +4,7 @@ import com.leonardo.barbershop.appointment.dto.barberservice.BarberServiceReques
 import com.leonardo.barbershop.appointment.dto.barberservice.BarberServiceResponse;
 import com.leonardo.barbershop.appointment.dto.barberservice.BarberServiceUpdateRequest;
 import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
+import com.leonardo.barbershop.appointment.exception.ServiceAlreadyDeactivatedException;
 import com.leonardo.barbershop.appointment.mapper.BarberServiceMapper;
 import com.leonardo.barbershop.appointment.model.BarberService;
 import com.leonardo.barbershop.appointment.repository.BarberServiceRepository;
@@ -55,6 +56,18 @@ public class BarberServiceService {
     public BarberServiceResponse update(UUID id, BarberServiceUpdateRequest request){
         BarberService barberServiceExists = findBarberServiceByIdOrThrow(id);
         updateBarberServiceData(barberServiceExists, request);
+        BarberService savedBarberService = repository.save(barberServiceExists);
+        return mapper.toDto(savedBarberService);
+    }
+
+    @Transactional
+    public BarberServiceResponse deactivate(UUID id){
+        BarberService barberServiceExists = findBarberServiceByIdOrThrow(id);
+
+        if(!barberServiceExists.isActive())
+            throw new ServiceAlreadyDeactivatedException("Barber service already deactivated");
+
+        barberServiceExists.setActive(false);
         BarberService savedBarberService = repository.save(barberServiceExists);
         return mapper.toDto(savedBarberService);
     }

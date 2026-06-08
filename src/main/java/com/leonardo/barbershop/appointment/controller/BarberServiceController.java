@@ -76,4 +76,15 @@ public class BarberServiceController {
             @RequestBody @Valid BarberServiceUpdateRequest request){
         return ResponseEntity.ok(service.update(id, request));
     }
+
+    @Operation(summary = "Deactivate barber service", description = "Deactivates a barber service by its ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Barber service successfully deactivated"),
+            @ApiResponse(responseCode = "404", description = "Barber service not found"),
+            @ApiResponse(responseCode = "409", description = "Barber service already deactivated")
+    })
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<BarberServiceResponse> deactivate(@PathVariable UUID id){
+        return ResponseEntity.ok(service.deactivate(id));
+    }
 }

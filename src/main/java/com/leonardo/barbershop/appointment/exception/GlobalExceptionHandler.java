@@ -26,4 +26,10 @@ public class GlobalExceptionHandler {
         ErrorResponse error = buildError(HttpStatus.NOT_FOUND, ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
+
+    @ExceptionHandler(ServiceAlreadyDeactivatedException.class)
+    public ResponseEntity<ErrorResponse> handleServiceAlreadyDeactivated(ServiceAlreadyDeactivatedException ex){
+        ErrorResponse error = buildError(HttpStatus.CONFLICT, ex);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }
