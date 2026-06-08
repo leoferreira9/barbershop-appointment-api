@@ -32,4 +32,10 @@ public class GlobalExceptionHandler {
         ErrorResponse error = buildError(HttpStatus.CONFLICT, ex);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
+
+    @ExceptionHandler(ServiceAlreadyActivatedException.class)
+    public ResponseEntity<ErrorResponse> handleServiceAlreadyActivated(ServiceAlreadyActivatedException ex){
+        ErrorResponse error = buildError(HttpStatus.CONFLICT, ex);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }

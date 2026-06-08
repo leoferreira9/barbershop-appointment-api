@@ -87,4 +87,15 @@ public class BarberServiceController {
     public ResponseEntity<BarberServiceResponse> deactivate(@PathVariable UUID id){
         return ResponseEntity.ok(service.deactivate(id));
     }
+
+    @Operation(summary = "Activate barber service", description = "Activates a barber service by its ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Barber service successfully activated"),
+            @ApiResponse(responseCode = "404", description = "Barber service not found"),
+            @ApiResponse(responseCode = "409", description = "Barber service already activated")
+    })
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<BarberServiceResponse> activate(@PathVariable UUID id){
+        return ResponseEntity.ok(service.activate(id));
+    }
 }
