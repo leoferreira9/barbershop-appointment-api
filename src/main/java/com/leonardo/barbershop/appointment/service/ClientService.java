@@ -4,6 +4,7 @@ import com.leonardo.barbershop.appointment.dto.client.ClientRequest;
 import com.leonardo.barbershop.appointment.dto.client.ClientResponse;
 import com.leonardo.barbershop.appointment.dto.client.ClientUpdateRequest;
 import com.leonardo.barbershop.appointment.exception.EmailAlreadyRegisteredException;
+import com.leonardo.barbershop.appointment.exception.EntityAlreadyActivatedException;
 import com.leonardo.barbershop.appointment.exception.EntityAlreadyDeactivatedException;
 import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
 import com.leonardo.barbershop.appointment.mapper.ClientMapper;
@@ -78,6 +79,16 @@ public class ClientService {
             throw new EntityAlreadyDeactivatedException("Client already deactivated");
 
         clientExists.setActive(false);
+        Client savedClient = repository.save(clientExists);
+        return mapper.toDto(savedClient);
+    }
+
+    @Transactional
+    public ClientResponse activate(UUID id){
+        Client clientExists = findClientByIdOrThrow(id);
+        if(clientExists.isActive())
+            throw new EntityAlreadyActivatedException("Client already activated");
+        clientExists.setActive(true);
         Client savedClient = repository.save(clientExists);
         return mapper.toDto(savedClient);
     }

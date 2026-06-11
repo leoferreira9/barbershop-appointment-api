@@ -90,4 +90,16 @@ public class ClientController {
             @Parameter(description = "Client ID", required = true, example = "f47ac10b-58cc-4372-a567-0e02b2c3d479") @PathVariable UUID id){
         return ResponseEntity.ok(service.deactivate(id));
     }
+
+    @Operation(summary = "Activate client", description = "Activates a client by its ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Client successfully activated"),
+            @ApiResponse(responseCode = "404", description = "Client not found"),
+            @ApiResponse(responseCode = "409", description = "Client already activated")
+    })
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<ClientResponse> activate(
+            @Parameter(description = "Client ID", required = true, example = "f47ac10b-58cc-4372-a567-0e02b2c3d479") @PathVariable UUID id){
+        return ResponseEntity.ok(service.activate(id));
+    }
 }
