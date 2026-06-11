@@ -11,6 +11,7 @@ public interface ClientMapper {
 
     ClientResponse toDto(Client client);
 
+    @Mapping(target = "active", constant = "true")
     @Mapping(target = "id", ignore = true)
     Client toEntity (ClientRequest request);
 

@@ -27,14 +27,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    @ExceptionHandler(ServiceAlreadyDeactivatedException.class)
-    public ResponseEntity<ErrorResponse> handleServiceAlreadyDeactivated(ServiceAlreadyDeactivatedException ex){
+    @ExceptionHandler(EntityAlreadyDeactivatedException.class)
+    public ResponseEntity<ErrorResponse> handleEntityAlreadyDeactivated(EntityAlreadyDeactivatedException ex){
         ErrorResponse error = buildError(HttpStatus.CONFLICT, ex);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
-    @ExceptionHandler(ServiceAlreadyActivatedException.class)
-    public ResponseEntity<ErrorResponse> handleServiceAlreadyActivated(ServiceAlreadyActivatedException ex){
+    @ExceptionHandler(EntityAlreadyActivatedException.class)
+    public ResponseEntity<ErrorResponse> handleEntityAlreadyActivated(EntityAlreadyActivatedException ex){
         ErrorResponse error = buildError(HttpStatus.CONFLICT, ex);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }

@@ -21,5 +21,5 @@ public class ClientResponse {
     private String email;
     private String phone;
     private LocalDate birthDate;
-
+    private boolean active;
 }

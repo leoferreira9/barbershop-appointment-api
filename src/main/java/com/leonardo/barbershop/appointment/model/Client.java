@@ -36,12 +36,16 @@ public class Client {
     @Column(nullable = false)
     private LocalDate birthDate;
 
+    @Column(nullable = false)
+    private boolean active;
+
     public Client(String firstName, String lastName, String email, String phone, LocalDate birthDate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phone = phone;
         this.birthDate = birthDate;
+        this.active = true;
     }
 
     @Override

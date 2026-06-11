@@ -79,15 +79,15 @@ public class ClientController {
         return ResponseEntity.ok(service.update(id, request));
     }
 
-    @Operation(summary = "Delete client", description = "Delete client by ID")
+    @Operation(summary = "Deactivate client", description = "Deactivates a client by its ID")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Client successfully deleted"),
-            @ApiResponse(responseCode = "404", description = "Client not found")
+            @ApiResponse(responseCode = "200", description = "Client successfully deactivated"),
+            @ApiResponse(responseCode = "404", description = "Client not found"),
+            @ApiResponse(responseCode = "409", description = "Client already deactivated"),
     })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<ClientResponse> deactivate(
             @Parameter(description = "Client ID", required = true, example = "f47ac10b-58cc-4372-a567-0e02b2c3d479") @PathVariable UUID id){
-        service.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(service.deactivate(id));
     }
 }
