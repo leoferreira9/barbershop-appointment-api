@@ -3,6 +3,7 @@ package com.leonardo.barbershop.appointment.service;
 import com.leonardo.barbershop.appointment.dto.appointment.AppointmentRequest;
 import com.leonardo.barbershop.appointment.dto.appointment.AppointmentResponse;
 import com.leonardo.barbershop.appointment.enums.AppointmentStatus;
+import com.leonardo.barbershop.appointment.exception.DateNotValidException;
 import com.leonardo.barbershop.appointment.exception.EntityAlreadyCompleted;
 import com.leonardo.barbershop.appointment.exception.EntityAlreadyDeactivatedException;
 import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
@@ -18,6 +19,7 @@ import com.leonardo.barbershop.appointment.repository.EmployeeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,6 +54,9 @@ public class AppointmentService {
 
         BarberService barberServiceExists = barberServiceRepository.findById(request.getBarberServiceId())
                 .orElseThrow(() -> new EntityNotFoundException("Barber service not found with ID: " + request.getBarberServiceId()));
+
+        if(!request.getAppointmentDate().isAfter(LocalDateTime.now()))
+            throw new DateNotValidException("Appointment date must not be in the past");
 
         Appointment appointment = new Appointment(clientExists, employeeExists, barberServiceExists, request.getAppointmentDate());
         Appointment savedAppointment = repository.save(appointment);
