@@ -2,6 +2,8 @@ package com.leonardo.barbershop.appointment.service;
 
 import com.leonardo.barbershop.appointment.dto.appointment.AppointmentRequest;
 import com.leonardo.barbershop.appointment.dto.appointment.AppointmentResponse;
+import com.leonardo.barbershop.appointment.enums.AppointmentStatus;
+import com.leonardo.barbershop.appointment.exception.EntityAlreadyDeactivatedException;
 import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
 import com.leonardo.barbershop.appointment.mapper.AppointmentMapper;
 import com.leonardo.barbershop.appointment.model.Appointment;
@@ -65,8 +67,14 @@ public class AppointmentService {
     }
 
     @Transactional
-    public void delete(UUID id){
+    public AppointmentResponse cancel(UUID id){
         Appointment appointmentExists = findAppointmentByIdOrThrow(id);
-        repository.delete(appointmentExists);
+
+        if(appointmentExists.getStatus() == AppointmentStatus.CANCELED)
+            throw new EntityAlreadyDeactivatedException("Appointment already canceled");
+
+        appointmentExists.setStatus(AppointmentStatus.CANCELED);
+        Appointment savedAppointment = repository.save(appointmentExists);
+        return mapper.toDto(savedAppointment);
     }
 }
