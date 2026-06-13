@@ -63,15 +63,14 @@ public class AppointmentController {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @Operation(summary = "Delete appointment", description = "Deletes appointment by ID")
+    @Operation(summary = "Cancel appointment", description = "Cancel appointment by ID")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Appointment successfully deleted"),
+            @ApiResponse(responseCode = "200", description = "Appointment successfully cancelled"),
             @ApiResponse(responseCode = "404", description = "Appointment not found")
     })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<AppointmentResponse> cancel(
             @Parameter(description = "Appointment ID", required = true, example = "f47ac10b-58cc-4372-a567-0e02b2c3d479") @PathVariable UUID id){
-        service.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(service.cancel(id));
     }
 }
