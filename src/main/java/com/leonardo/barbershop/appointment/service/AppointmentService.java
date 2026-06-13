@@ -3,10 +3,7 @@ package com.leonardo.barbershop.appointment.service;
 import com.leonardo.barbershop.appointment.dto.appointment.AppointmentRequest;
 import com.leonardo.barbershop.appointment.dto.appointment.AppointmentResponse;
 import com.leonardo.barbershop.appointment.enums.AppointmentStatus;
-import com.leonardo.barbershop.appointment.exception.DateNotValidException;
-import com.leonardo.barbershop.appointment.exception.EntityAlreadyCompleted;
-import com.leonardo.barbershop.appointment.exception.EntityAlreadyDeactivatedException;
-import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
+import com.leonardo.barbershop.appointment.exception.*;
 import com.leonardo.barbershop.appointment.mapper.AppointmentMapper;
 import com.leonardo.barbershop.appointment.model.Appointment;
 import com.leonardo.barbershop.appointment.model.BarberService;
@@ -57,6 +54,9 @@ public class AppointmentService {
 
         if(!request.getAppointmentDate().isAfter(LocalDateTime.now()))
             throw new DateNotValidException("Appointment date must not be in the past");
+
+        if(repository.existsByEmployee_IdAndAppointmentDateAndStatusNot(request.getEmployeeId(), request.getAppointmentDate(), AppointmentStatus.CANCELED))
+            throw new EmployeeNotAvailable("Employee not available on this date");
 
         Appointment appointment = new Appointment(clientExists, employeeExists, barberServiceExists, request.getAppointmentDate());
         Appointment savedAppointment = repository.save(appointment);
