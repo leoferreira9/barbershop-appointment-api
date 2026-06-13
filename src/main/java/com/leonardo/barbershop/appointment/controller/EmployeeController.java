@@ -79,15 +79,27 @@ public class EmployeeController {
         return ResponseEntity.ok(service.update(id, request));
     }
 
-    @Operation(summary = "Delete employee", description = "Deletes employee by ID")
+    @Operation(summary = "Deactivate employee", description = "Deactivates an employee by its ID")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Employee successfully deleted"),
-            @ApiResponse(responseCode = "404", description = "Employee not found")
+            @ApiResponse(responseCode = "200", description = "Employee successfully deactivated"),
+            @ApiResponse(responseCode = "404", description = "Employee not found"),
+            @ApiResponse(responseCode = "409", description = "Employee already deactivated")
     })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<EmployeeResponse> deactivate(
             @Parameter(description = "Employee ID", required = true, example = "f47ac10b-58cc-4372-a567-0e02b2c3d479") @PathVariable UUID id){
-        service.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(service.deactivate(id));
+    }
+
+    @Operation(summary = "Activate employee", description = "Activates an employee by its ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Employee successfully activated"),
+            @ApiResponse(responseCode = "404", description = "Employee not found"),
+            @ApiResponse(responseCode = "409", description = "Employee already activated")
+    })
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<EmployeeResponse> activate(
+            @Parameter(description = "Employee ID", required = true, example = "f47ac10b-58cc-4372-a567-0e02b2c3d479") @PathVariable UUID id){
+        return ResponseEntity.ok(service.activate(id));
     }
 }

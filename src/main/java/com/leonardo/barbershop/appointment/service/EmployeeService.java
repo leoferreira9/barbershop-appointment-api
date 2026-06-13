@@ -4,6 +4,8 @@ import com.leonardo.barbershop.appointment.dto.employee.EmployeeRequest;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeResponse;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeUpdateRequest;
 import com.leonardo.barbershop.appointment.exception.EmailAlreadyRegisteredException;
+import com.leonardo.barbershop.appointment.exception.EntityAlreadyActivatedException;
+import com.leonardo.barbershop.appointment.exception.EntityAlreadyDeactivatedException;
 import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
 import com.leonardo.barbershop.appointment.mapper.EmployeeMapper;
 import com.leonardo.barbershop.appointment.model.Employee;
@@ -68,8 +70,26 @@ public class EmployeeService {
     }
 
     @Transactional
-    public void delete(UUID id){
+    public EmployeeResponse deactivate(UUID id){
         Employee employeeExists = findEmployeeByIdOrThrow(id);
-        repository.delete(employeeExists);
+
+        if(!employeeExists.isActive())
+            throw new EntityAlreadyDeactivatedException("Employee already deactivated");
+
+        employeeExists.setActive(false);
+        Employee savedEmployee = repository.save(employeeExists);
+        return mapper.toDto(savedEmployee);
+    }
+
+    @Transactional
+    public EmployeeResponse activate(UUID id){
+        Employee employeeExists = findEmployeeByIdOrThrow(id);
+
+        if(employeeExists.isActive())
+            throw new EntityAlreadyActivatedException("Employee already activated");
+
+        employeeExists.setActive(true);
+        Employee savedEmployee = repository.save(employeeExists);
+        return mapper.toDto(savedEmployee);
     }
 }
