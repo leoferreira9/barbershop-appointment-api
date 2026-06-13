@@ -3,6 +3,7 @@ package com.leonardo.barbershop.appointment.service;
 import com.leonardo.barbershop.appointment.dto.appointment.AppointmentRequest;
 import com.leonardo.barbershop.appointment.dto.appointment.AppointmentResponse;
 import com.leonardo.barbershop.appointment.enums.AppointmentStatus;
+import com.leonardo.barbershop.appointment.exception.EntityAlreadyCompleted;
 import com.leonardo.barbershop.appointment.exception.EntityAlreadyDeactivatedException;
 import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
 import com.leonardo.barbershop.appointment.mapper.AppointmentMapper;
@@ -74,6 +75,18 @@ public class AppointmentService {
             throw new EntityAlreadyDeactivatedException("Appointment already canceled");
 
         appointmentExists.setStatus(AppointmentStatus.CANCELED);
+        Appointment savedAppointment = repository.save(appointmentExists);
+        return mapper.toDto(savedAppointment);
+    }
+
+    @Transactional
+    public AppointmentResponse complete(UUID id){
+        Appointment appointmentExists = findAppointmentByIdOrThrow(id);
+
+        if(appointmentExists.getStatus() == AppointmentStatus.COMPLETED)
+            throw new EntityAlreadyCompleted("Appointment already completed");
+
+        appointmentExists.setStatus(AppointmentStatus.COMPLETED);
         Appointment savedAppointment = repository.save(appointmentExists);
         return mapper.toDto(savedAppointment);
     }

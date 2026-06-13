@@ -66,11 +66,24 @@ public class AppointmentController {
     @Operation(summary = "Cancel appointment", description = "Cancel appointment by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Appointment successfully cancelled"),
-            @ApiResponse(responseCode = "404", description = "Appointment not found")
+            @ApiResponse(responseCode = "404", description = "Appointment not found"),
+            @ApiResponse(responseCode = "409", description = "Appointment already cancelled")
     })
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<AppointmentResponse> cancel(
             @Parameter(description = "Appointment ID", required = true, example = "f47ac10b-58cc-4372-a567-0e02b2c3d479") @PathVariable UUID id){
         return ResponseEntity.ok(service.cancel(id));
+    }
+
+    @Operation(summary = "Complete appointment", description = "Completes an appointment by its ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Appointment successfully completed"),
+            @ApiResponse(responseCode = "404", description = "Appointment not found"),
+            @ApiResponse(responseCode = "409", description = "Appointment already completed")
+    })
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<AppointmentResponse> complete(
+            @Parameter(description = "Appointment ID", required = true, example = "f47ac10b-58cc-4372-a567-0e02b2c3d479") @PathVariable UUID id){
+        return ResponseEntity.ok(service.complete(id));
     }
 }
