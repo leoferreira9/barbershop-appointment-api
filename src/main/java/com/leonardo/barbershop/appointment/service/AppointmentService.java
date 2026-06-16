@@ -52,6 +52,9 @@ public class AppointmentService {
         BarberService barberServiceExists = barberServiceRepository.findById(request.getBarberServiceId())
                 .orElseThrow(() -> new EntityNotFoundException("Barber service not found with ID: " + request.getBarberServiceId()));
 
+        if(!employeeExists.isActive())
+            throw new EmployeeNotAvailable("Employee is inactive");
+
         if(!request.getAppointmentDate().isAfter(LocalDateTime.now()))
             throw new DateNotValidException("Appointment date must not be in the past");
 

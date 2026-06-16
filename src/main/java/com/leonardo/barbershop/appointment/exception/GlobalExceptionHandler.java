@@ -38,4 +38,10 @@ public class GlobalExceptionHandler {
         ErrorResponse error = buildError(HttpStatus.CONFLICT, ex);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
+
+    @ExceptionHandler(EmployeeNotAvailable.class)
+    public ResponseEntity<ErrorResponse> handleEmployeeNotAvailable(EmployeeNotAvailable ex){
+        ErrorResponse error = buildError(HttpStatus.CONFLICT, ex);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }
