@@ -55,6 +55,9 @@ public class AppointmentService {
         if(!employeeExists.isActive())
             throw new EmployeeNotAvailable("Employee is inactive");
 
+        if(!barberServiceExists.isActive())
+            throw new BarberServiceNotAvailable("Barber service is inactive");
+
         if(!request.getAppointmentDate().isAfter(LocalDateTime.now()))
             throw new DateNotValidException("Appointment date must not be in the past");
 

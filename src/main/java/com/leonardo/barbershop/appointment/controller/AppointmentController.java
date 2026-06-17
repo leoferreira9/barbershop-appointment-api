@@ -33,7 +33,7 @@ public class AppointmentController {
             @ApiResponse(responseCode = "201", description = "Appointment created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid data"),
             @ApiResponse(responseCode = "404", description = "Client, employee or barber service not found"),
-            @ApiResponse(responseCode = "409", description = "Employee is inactive or not available on this date")
+            @ApiResponse(responseCode = "409", description = "Employee or barber service is inactive, or employee is not available on this date")
     })
     @PostMapping
     public ResponseEntity<AppointmentResponse> create(@RequestBody @Valid AppointmentRequest request){

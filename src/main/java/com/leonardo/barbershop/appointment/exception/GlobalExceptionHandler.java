@@ -44,4 +44,10 @@ public class GlobalExceptionHandler {
         ErrorResponse error = buildError(HttpStatus.CONFLICT, ex);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
+
+    @ExceptionHandler(BarberServiceNotAvailable.class)
+    public ResponseEntity<ErrorResponse> handleBarberServiceNotAvailable(BarberServiceNotAvailable ex){
+        ErrorResponse error = buildError(HttpStatus.CONFLICT, ex);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }
