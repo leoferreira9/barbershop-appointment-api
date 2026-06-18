@@ -10,12 +10,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -60,8 +61,8 @@ public class BarberServiceController {
     @Operation(summary = "Find all barber services", description = "Returns all barber services")
     @ApiResponse(responseCode = "200", description = "Barber services successfully found")
     @GetMapping
-    public ResponseEntity<List<BarberServiceResponse>> findAll(){
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<Page<BarberServiceResponse>> findAll(Pageable pageable){
+        return ResponseEntity.ok(service.findAll(pageable));
     }
 
     @Operation(summary = "Update barber service", description = "Updates barber service data by ID")

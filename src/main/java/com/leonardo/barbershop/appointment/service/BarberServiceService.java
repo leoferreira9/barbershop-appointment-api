@@ -9,10 +9,11 @@ import com.leonardo.barbershop.appointment.exception.EntityAlreadyDeactivatedExc
 import com.leonardo.barbershop.appointment.mapper.BarberServiceMapper;
 import com.leonardo.barbershop.appointment.model.BarberService;
 import com.leonardo.barbershop.appointment.repository.BarberServiceRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -49,8 +50,8 @@ public class BarberServiceService {
         return mapper.toDto(barberServiceExists);
     }
 
-    public List<BarberServiceResponse> findAll(){
-        return repository.findAll().stream().map(mapper::toDto).toList();
+    public Page<BarberServiceResponse> findAll(Pageable pageable){
+        return repository.findAll(pageable).map(mapper::toDto);
     }
 
     @Transactional

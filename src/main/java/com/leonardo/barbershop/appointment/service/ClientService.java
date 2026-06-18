@@ -10,10 +10,11 @@ import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
 import com.leonardo.barbershop.appointment.mapper.ClientMapper;
 import com.leonardo.barbershop.appointment.model.Client;
 import com.leonardo.barbershop.appointment.repository.ClientRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -55,8 +56,8 @@ public class ClientService {
         return mapper.toDto(clientExists);
     }
 
-    public List<ClientResponse> findAll(){
-        return repository.findAll().stream().map(mapper::toDto).toList();
+    public Page<ClientResponse> findAll(Pageable pageable){
+        return repository.findAll(pageable).map(mapper::toDto);
     }
 
     @Transactional

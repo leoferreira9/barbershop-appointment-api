@@ -10,12 +10,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -61,8 +62,8 @@ public class EmployeeController {
     @Operation(summary = "Find all employees", description = "Returns all employees")
     @ApiResponse(responseCode = "200", description = "Employees successfully found")
     @GetMapping
-    public ResponseEntity<List<EmployeeResponse>> findAll(){
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<Page<EmployeeResponse>> findAll(Pageable pageable){
+        return ResponseEntity.ok(service.findAll(pageable));
     }
 
     @Operation(summary = "Update employee", description = "Updates employee data by ID")

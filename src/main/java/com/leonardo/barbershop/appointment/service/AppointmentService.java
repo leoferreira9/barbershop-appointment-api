@@ -13,11 +13,12 @@ import com.leonardo.barbershop.appointment.repository.AppointmentRepository;
 import com.leonardo.barbershop.appointment.repository.BarberServiceRepository;
 import com.leonardo.barbershop.appointment.repository.ClientRepository;
 import com.leonardo.barbershop.appointment.repository.EmployeeRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -74,8 +75,8 @@ public class AppointmentService {
         return mapper.toDto(appointmentExists);
     }
 
-    public List<AppointmentResponse> findAll(){
-        return repository.findAll().stream().map(mapper::toDto).toList();
+    public Page<AppointmentResponse> findAll(Pageable pageable){
+        return repository.findAll(pageable).map(mapper::toDto);
     }
 
     @Transactional

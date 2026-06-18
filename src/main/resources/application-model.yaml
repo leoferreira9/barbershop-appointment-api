@@ -12,3 +12,8 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: true
+  data:
+    web:
+      pageable:
+        max-page-size: 20
+        default-page-size: 10

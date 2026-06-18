@@ -10,10 +10,11 @@ import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
 import com.leonardo.barbershop.appointment.mapper.EmployeeMapper;
 import com.leonardo.barbershop.appointment.model.Employee;
 import com.leonardo.barbershop.appointment.repository.EmployeeRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -53,8 +54,8 @@ public class EmployeeService {
         return mapper.toDto(employeeExists);
     }
 
-    public List<EmployeeResponse> findAll(){
-        return repository.findAll().stream().map(mapper::toDto).toList();
+    public Page<EmployeeResponse> findAll(Pageable pageable){
+        return repository.findAll(pageable).map(mapper::toDto);
     }
 
     @Transactional
