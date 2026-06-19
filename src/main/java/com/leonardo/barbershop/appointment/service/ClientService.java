@@ -7,11 +7,13 @@ import com.leonardo.barbershop.appointment.exception.EmailAlreadyRegisteredExcep
 import com.leonardo.barbershop.appointment.exception.EntityAlreadyActivatedException;
 import com.leonardo.barbershop.appointment.exception.EntityAlreadyDeactivatedException;
 import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
+import com.leonardo.barbershop.appointment.filters.ClientFilter;
 import com.leonardo.barbershop.appointment.mapper.ClientMapper;
 import com.leonardo.barbershop.appointment.model.Client;
 import com.leonardo.barbershop.appointment.repository.ClientRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,8 +58,13 @@ public class ClientService {
         return mapper.toDto(clientExists);
     }
 
-    public Page<ClientResponse> findAll(Pageable pageable){
-        return repository.findAll(pageable).map(mapper::toDto);
+    public Page<ClientResponse> findAll(String name, Boolean active, Pageable pageable){
+
+        Specification<Client> specification = Specification
+                .where(ClientFilter.hasName(name))
+                .and(ClientFilter.hasActive(active));
+
+        return repository.findAll(specification, pageable).map(mapper::toDto);
     }
 
     @Transactional

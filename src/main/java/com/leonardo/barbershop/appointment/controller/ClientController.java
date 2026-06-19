@@ -62,8 +62,11 @@ public class ClientController {
     @Operation(summary = "Find all clients", description = "Returns all clients")
     @ApiResponse(responseCode = "200", description = "Clients successfully found")
     @GetMapping
-    public ResponseEntity<Page<ClientResponse>> findAll(Pageable pageable){
-        return ResponseEntity.ok(service.findAll(pageable));
+    public ResponseEntity<Page<ClientResponse>> findAll(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Boolean active,
+            Pageable pageable){
+        return ResponseEntity.ok(service.findAll(name, active, pageable));
     }
 
     @Operation(summary = "Update client", description = "Updates client data by ID")
