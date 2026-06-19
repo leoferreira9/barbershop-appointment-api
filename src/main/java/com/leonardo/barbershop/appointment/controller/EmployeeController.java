@@ -62,8 +62,11 @@ public class EmployeeController {
     @Operation(summary = "Find all employees", description = "Returns all employees")
     @ApiResponse(responseCode = "200", description = "Employees successfully found")
     @GetMapping
-    public ResponseEntity<Page<EmployeeResponse>> findAll(Pageable pageable){
-        return ResponseEntity.ok(service.findAll(pageable));
+    public ResponseEntity<Page<EmployeeResponse>> findAll(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Boolean active,
+            Pageable pageable){
+        return ResponseEntity.ok(service.findAll(name, active, pageable));
     }
 
     @Operation(summary = "Update employee", description = "Updates employee data by ID")
