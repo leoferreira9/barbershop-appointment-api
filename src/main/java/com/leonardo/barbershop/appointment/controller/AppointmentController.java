@@ -2,6 +2,7 @@ package com.leonardo.barbershop.appointment.controller;
 
 import com.leonardo.barbershop.appointment.dto.appointment.AppointmentRequest;
 import com.leonardo.barbershop.appointment.dto.appointment.AppointmentResponse;
+import com.leonardo.barbershop.appointment.enums.AppointmentStatus;
 import com.leonardo.barbershop.appointment.service.AppointmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -61,8 +62,12 @@ public class AppointmentController {
     @Operation(summary = "Find all appointments", description = "Returns all appointments")
     @ApiResponse(responseCode = "200", description = "Appointments successfully found")
     @GetMapping
-    public ResponseEntity<Page<AppointmentResponse>> findAll(Pageable pageable){
-        return ResponseEntity.ok(service.findAll(pageable));
+    public ResponseEntity<Page<AppointmentResponse>> findAll(
+            @RequestParam(required = false) AppointmentStatus status,
+            @RequestParam(required = false) String clientName,
+            @RequestParam(required = false) String employeeName,
+            Pageable pageable){
+        return ResponseEntity.ok(service.findAll(status, clientName, employeeName, pageable));
     }
 
     @Operation(summary = "Cancel appointment", description = "Cancel appointment by ID")

@@ -4,6 +4,7 @@ import com.leonardo.barbershop.appointment.dto.appointment.AppointmentRequest;
 import com.leonardo.barbershop.appointment.dto.appointment.AppointmentResponse;
 import com.leonardo.barbershop.appointment.enums.AppointmentStatus;
 import com.leonardo.barbershop.appointment.exception.*;
+import com.leonardo.barbershop.appointment.filters.AppointmentFilter;
 import com.leonardo.barbershop.appointment.mapper.AppointmentMapper;
 import com.leonardo.barbershop.appointment.model.Appointment;
 import com.leonardo.barbershop.appointment.model.BarberService;
@@ -15,6 +16,7 @@ import com.leonardo.barbershop.appointment.repository.ClientRepository;
 import com.leonardo.barbershop.appointment.repository.EmployeeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,8 +77,13 @@ public class AppointmentService {
         return mapper.toDto(appointmentExists);
     }
 
-    public Page<AppointmentResponse> findAll(Pageable pageable){
-        return repository.findAll(pageable).map(mapper::toDto);
+    public Page<AppointmentResponse> findAll(AppointmentStatus status, String clientName, String employeeName, Pageable pageable){
+
+        Specification<Appointment> specification = Specification.where(AppointmentFilter.hasStatus(status))
+                .and(AppointmentFilter.hasClientName(clientName))
+                .and(AppointmentFilter.hasEmployeeName(employeeName));
+
+        return repository.findAll(specification, pageable).map(mapper::toDto);
     }
 
     @Transactional
