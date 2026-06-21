@@ -61,8 +61,11 @@ public class BarberServiceController {
     @Operation(summary = "Find all barber services", description = "Returns all barber services")
     @ApiResponse(responseCode = "200", description = "Barber services successfully found")
     @GetMapping
-    public ResponseEntity<Page<BarberServiceResponse>> findAll(Pageable pageable){
-        return ResponseEntity.ok(service.findAll(pageable));
+    public ResponseEntity<Page<BarberServiceResponse>> findAll(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Boolean active,
+            Pageable pageable){
+        return ResponseEntity.ok(service.findAll(name, active, pageable));
     }
 
     @Operation(summary = "Update barber service", description = "Updates barber service data by ID")
