@@ -9,12 +9,12 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
-@Table(name = "barber_services")
+@Table(name = "service_items")
 @Entity
 @NoArgsConstructor
 @Getter
 @Setter
-public class BarberService {
+public class ServiceItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -36,7 +36,7 @@ public class BarberService {
     @Column(nullable = false)
     private boolean active;
 
-    public BarberService(String name, String description, BigDecimal price, int durationMinutes) {
+    public ServiceItem(String name, String description, BigDecimal price, int durationMinutes) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -47,9 +47,9 @@ public class BarberService {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        BarberService barberService = (BarberService) o;
-        if(this.id == null || barberService.id == null) return false;
-        return Objects.equals(getId(), barberService.getId());
+        ServiceItem serviceItem = (ServiceItem) o;
+        if(this.id == null || serviceItem.id == null) return false;
+        return Objects.equals(getId(), serviceItem.getId());
     }
 
     @Override

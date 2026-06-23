@@ -26,9 +26,9 @@ public class AppointmentResponse {
     private String employeePhone;
     private String employeeEmail;
 
-    private String barberServiceName;
-    private String barberServiceDescription;
-    private BigDecimal barberServicePrice;
+    private String serviceItemName;
+    private String serviceItemDescription;
+    private BigDecimal serviceItemPrice;
     private Integer durationMinutes;
 
     private LocalDateTime appointmentDate;

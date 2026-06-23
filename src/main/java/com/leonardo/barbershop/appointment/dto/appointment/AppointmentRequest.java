@@ -24,7 +24,7 @@ public class AppointmentRequest {
     private UUID employeeId;
 
     @NotNull
-    private UUID barberServiceId;
+    private UUID serviceItemId;
 
     @NotNull
     @Future

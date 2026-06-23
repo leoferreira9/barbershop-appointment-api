@@ -1,11 +1,11 @@
 package com.leonardo.barbershop.appointment.filters;
 
-import com.leonardo.barbershop.appointment.model.BarberService;
+import com.leonardo.barbershop.appointment.model.ServiceItem;
 import org.springframework.data.jpa.domain.Specification;
 
-public class BarberServiceFilter {
+public class ServiceItemFilter {
 
-    public static Specification<BarberService> hasName(String name){
+    public static Specification<ServiceItem> hasName(String name){
         return (root, query, criteriaBuilder) -> {
             if(name == null || name.isBlank()){
                 return null;
@@ -17,7 +17,7 @@ public class BarberServiceFilter {
         };
     }
 
-    public static Specification<BarberService> hasActive(Boolean active){
+    public static Specification<ServiceItem> hasActive(Boolean active){
         return (root, query, criteriaBuilder) -> {
             if(active == null){
                 return null;

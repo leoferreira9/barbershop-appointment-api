@@ -31,8 +31,8 @@ public class Appointment {
     private Employee employee;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "barber_service_id", nullable = false)
-    private BarberService barberService;
+    @JoinColumn(name = "service_item_id", nullable = false)
+    private ServiceItem serviceItem;
 
     @Column(nullable = false)
     private LocalDateTime appointmentDate;
@@ -41,10 +41,10 @@ public class Appointment {
     @Column(nullable = false)
     private AppointmentStatus status;
 
-    public Appointment(Client client, Employee employee, BarberService barberService, LocalDateTime appointmentDate) {
+    public Appointment(Client client, Employee employee, ServiceItem serviceItem, LocalDateTime appointmentDate) {
         this.client = client;
         this.employee = employee;
-        this.barberService = barberService;
+        this.serviceItem = serviceItem;
         this.appointmentDate = appointmentDate;
         this.status = AppointmentStatus.SCHEDULED;
     }

@@ -15,10 +15,10 @@ public interface AppointmentMapper {
     @Mapping(source = "employee.name", target = "employeeName")
     @Mapping(source = "employee.phone", target = "employeePhone")
     @Mapping(source = "employee.email", target = "employeeEmail")
-    @Mapping(source = "barberService.name", target = "barberServiceName")
-    @Mapping(source = "barberService.description", target = "barberServiceDescription")
-    @Mapping(source = "barberService.price", target = "barberServicePrice")
-    @Mapping(source = "barberService.durationMinutes", target = "durationMinutes")
+    @Mapping(source = "serviceItem.name", target = "serviceItemName")
+    @Mapping(source = "serviceItem.description", target = "serviceItemDescription")
+    @Mapping(source = "serviceItem.price", target = "serviceItemPrice")
+    @Mapping(source = "serviceItem.durationMinutes", target = "durationMinutes")
     AppointmentResponse toDto(Appointment appointment);
 
 }

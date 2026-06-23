@@ -1,4 +1,4 @@
-package com.leonardo.barbershop.appointment.dto.barberservice;
+package com.leonardo.barbershop.appointment.dto.serviceItem;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @Setter
-public class BarberServiceResponse {
+public class ServiceItemResponse {
 
     private UUID id;
     private String name;

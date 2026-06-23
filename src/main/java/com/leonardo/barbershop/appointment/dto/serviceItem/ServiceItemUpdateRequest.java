@@ -1,4 +1,4 @@
-package com.leonardo.barbershop.appointment.dto.barberservice;
+package com.leonardo.barbershop.appointment.dto.serviceItem;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -8,12 +8,11 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-public class BarberServiceRequest {
-
+public class ServiceItemUpdateRequest {
     @NotBlank
     @Size(max = 150)
     private String name;
@@ -30,5 +29,4 @@ public class BarberServiceRequest {
     @Min(value = 10)
     @Max(value = 90)
     private Integer durationMinutes;
-
 }

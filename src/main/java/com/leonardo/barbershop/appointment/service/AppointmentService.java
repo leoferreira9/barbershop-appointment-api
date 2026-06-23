@@ -7,11 +7,11 @@ import com.leonardo.barbershop.appointment.exception.*;
 import com.leonardo.barbershop.appointment.filters.AppointmentFilter;
 import com.leonardo.barbershop.appointment.mapper.AppointmentMapper;
 import com.leonardo.barbershop.appointment.model.Appointment;
-import com.leonardo.barbershop.appointment.model.BarberService;
+import com.leonardo.barbershop.appointment.model.ServiceItem;
 import com.leonardo.barbershop.appointment.model.Client;
 import com.leonardo.barbershop.appointment.model.Employee;
 import com.leonardo.barbershop.appointment.repository.AppointmentRepository;
-import com.leonardo.barbershop.appointment.repository.BarberServiceRepository;
+import com.leonardo.barbershop.appointment.repository.ServiceItemRepository;
 import com.leonardo.barbershop.appointment.repository.ClientRepository;
 import com.leonardo.barbershop.appointment.repository.EmployeeRepository;
 import org.springframework.data.domain.Page;
@@ -30,14 +30,14 @@ public class AppointmentService {
     private final AppointmentMapper mapper;
     private final ClientRepository clientRepository;
     private final EmployeeRepository employeeRepository;
-    private final BarberServiceRepository barberServiceRepository;
+    private final ServiceItemRepository serviceItemRepository;
 
-    public AppointmentService(AppointmentRepository repository, AppointmentMapper mapper, ClientRepository clientRepository, EmployeeRepository employeeRepository, BarberServiceRepository barberServiceRepository) {
+    public AppointmentService(AppointmentRepository repository, AppointmentMapper mapper, ClientRepository clientRepository, EmployeeRepository employeeRepository, ServiceItemRepository serviceItemRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.clientRepository = clientRepository;
         this.employeeRepository = employeeRepository;
-        this.barberServiceRepository = barberServiceRepository;
+        this.serviceItemRepository = serviceItemRepository;
     }
 
     private Appointment findAppointmentByIdOrThrow(UUID id){
@@ -52,14 +52,14 @@ public class AppointmentService {
         Employee employeeExists = employeeRepository.findById(request.getEmployeeId())
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found with ID: " + request.getEmployeeId()));
 
-        BarberService barberServiceExists = barberServiceRepository.findById(request.getBarberServiceId())
-                .orElseThrow(() -> new EntityNotFoundException("Barber service not found with ID: " + request.getBarberServiceId()));
+        ServiceItem serviceItemExists = serviceItemRepository.findById(request.getServiceItemId())
+                .orElseThrow(() -> new EntityNotFoundException("Service item not found with ID: " + request.getServiceItemId()));
 
         if(!employeeExists.isActive())
             throw new EmployeeNotAvailable("Employee is inactive");
 
-        if(!barberServiceExists.isActive())
-            throw new BarberServiceNotAvailable("Barber service is inactive");
+        if(!serviceItemExists.isActive())
+            throw new ServiceItemNotAvailable("Service item is inactive");
 
         if(!request.getAppointmentDate().isAfter(LocalDateTime.now()))
             throw new DateNotValidException("Appointment date must not be in the past");
@@ -67,7 +67,7 @@ public class AppointmentService {
         if(repository.existsByEmployee_IdAndAppointmentDateAndStatusNot(request.getEmployeeId(), request.getAppointmentDate(), AppointmentStatus.CANCELED))
             throw new EmployeeNotAvailable("Employee not available on this date");
 
-        Appointment appointment = new Appointment(clientExists, employeeExists, barberServiceExists, request.getAppointmentDate());
+        Appointment appointment = new Appointment(clientExists, employeeExists, serviceItemExists, request.getAppointmentDate());
         Appointment savedAppointment = repository.save(appointment);
         return mapper.toDto(savedAppointment);
     }
