@@ -46,14 +46,14 @@ public class AppointmentService {
 
     @Transactional
     public AppointmentResponse create(AppointmentRequest request){
-        Client clientExists = clientRepository.findById(request.getClientId())
-                .orElseThrow(() -> new EntityNotFoundException("Client not found with ID: " + request.getClientId()));
+        Client clientExists = clientRepository.findById(request.clientId())
+                .orElseThrow(() -> new EntityNotFoundException("Client not found with ID: " + request.clientId()));
 
-        Employee employeeExists = employeeRepository.findById(request.getEmployeeId())
-                .orElseThrow(() -> new EntityNotFoundException("Employee not found with ID: " + request.getEmployeeId()));
+        Employee employeeExists = employeeRepository.findById(request.employeeId())
+                .orElseThrow(() -> new EntityNotFoundException("Employee not found with ID: " + request.employeeId()));
 
-        ServiceItem serviceItemExists = serviceItemRepository.findById(request.getServiceItemId())
-                .orElseThrow(() -> new EntityNotFoundException("Service item not found with ID: " + request.getServiceItemId()));
+        ServiceItem serviceItemExists = serviceItemRepository.findById(request.serviceItemId())
+                .orElseThrow(() -> new EntityNotFoundException("Service item not found with ID: " + request.serviceItemId()));
 
         if(!employeeExists.isActive())
             throw new EmployeeNotAvailable("Employee is inactive");
@@ -61,13 +61,13 @@ public class AppointmentService {
         if(!serviceItemExists.isActive())
             throw new ServiceItemNotAvailable("Service item is inactive");
 
-        if(!request.getAppointmentDate().isAfter(LocalDateTime.now()))
+        if(!request.appointmentDate().isAfter(LocalDateTime.now()))
             throw new DateNotValidException("Appointment date must not be in the past");
 
-        if(repository.existsByEmployee_IdAndAppointmentDateAndStatusNot(request.getEmployeeId(), request.getAppointmentDate(), AppointmentStatus.CANCELED))
+        if(repository.existsByEmployee_IdAndAppointmentDateAndStatusNot(request.employeeId(), request.appointmentDate(), AppointmentStatus.CANCELED))
             throw new EmployeeNotAvailable("Employee not available on this date");
 
-        Appointment appointment = new Appointment(clientExists, employeeExists, serviceItemExists, request.getAppointmentDate());
+        Appointment appointment = new Appointment(clientExists, employeeExists, serviceItemExists, request.appointmentDate());
         Appointment savedAppointment = repository.save(appointment);
         return mapper.toDto(savedAppointment);
     }

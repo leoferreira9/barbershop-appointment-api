@@ -2,31 +2,20 @@ package com.leonardo.barbershop.appointment.dto.appointment;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+public record AppointmentRequest(
+        @NotNull
+        UUID clientId,
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-public class AppointmentRequest {
+        @NotNull
+        UUID employeeId,
 
-    @NotNull
-    private UUID clientId;
+        @NotNull
+        UUID serviceItemId,
 
-    @NotNull
-    private UUID employeeId;
-
-    @NotNull
-    private UUID serviceItemId;
-
-    @NotNull
-    @Future
-    private LocalDateTime appointmentDate;
-}
+        @NotNull
+        @Future
+        LocalDateTime appointmentDate
+) {}

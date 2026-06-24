@@ -42,7 +42,7 @@ public class AppointmentController {
         AppointmentResponse savedAppointment = service.create(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(savedAppointment.getId())
+                .buildAndExpand(savedAppointment.id())
                 .toUri();
 
         return ResponseEntity.created(location).body(savedAppointment);
