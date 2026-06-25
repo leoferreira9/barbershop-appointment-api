@@ -36,17 +36,17 @@ public class ClientService {
     }
 
     private void updateClientData(ClientUpdateRequest request, Client client){
-        client.setBirthDate(request.getBirthDate());
-        client.setEmail(request.getEmail());
-        client.setPhone(request.getPhone());
-        client.setFirstName(request.getFirstName());
-        client.setLastName(request.getLastName());
+        client.setBirthDate(request.birthDate());
+        client.setEmail(request.email());
+        client.setPhone(request.phone());
+        client.setFirstName(request.firstName());
+        client.setLastName(request.lastName());
     }
 
     @Transactional
     public ClientResponse create(ClientRequest request){
-        if(repository.findByEmail(request.getEmail()).isPresent())
-            throw new EmailAlreadyRegisteredException("Email " + request.getEmail() + " already registered!");
+        if(repository.findByEmail(request.email()).isPresent())
+            throw new EmailAlreadyRegisteredException("Email " + request.email() + " already registered!");
 
         Client client = mapper.toEntity(request);
         Client savedClient = repository.save(client);
@@ -70,10 +70,10 @@ public class ClientService {
     @Transactional
     public ClientResponse update(UUID id, ClientUpdateRequest request){
         Client clientExists = findClientByIdOrThrow(id);
-        Optional<Client> emailAlreadyRegistered = repository.findByEmail(request.getEmail());
+        Optional<Client> emailAlreadyRegistered = repository.findByEmail(request.email());
 
         if(emailAlreadyRegistered.isPresent() && !emailAlreadyRegistered.get().getId().equals(clientExists.getId()))
-            throw new EmailAlreadyRegisteredException("Email " + request.getEmail() + " already registered!");
+            throw new EmailAlreadyRegisteredException("Email " + request.email() + " already registered!");
 
         updateClientData(request, clientExists);
         Client savedClient = repository.save(clientExists);
