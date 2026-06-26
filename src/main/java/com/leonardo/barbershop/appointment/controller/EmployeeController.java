@@ -42,7 +42,7 @@ public class EmployeeController {
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(savedEmployee.getId())
+                .buildAndExpand(savedEmployee.id())
                 .toUri();
 
         return ResponseEntity.created(location).body(savedEmployee);

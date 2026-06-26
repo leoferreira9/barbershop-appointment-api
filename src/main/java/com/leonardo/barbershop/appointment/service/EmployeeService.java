@@ -36,15 +36,15 @@ public class EmployeeService {
     }
 
     private void updateEmployeeData(EmployeeUpdateRequest request, Employee employee){
-        employee.setName(request.getName());
-        employee.setEmail(request.getEmail());
-        employee.setPhone(request.getPhone());
+        employee.setName(request.name());
+        employee.setEmail(request.email());
+        employee.setPhone(request.phone());
     }
 
     @Transactional
     public EmployeeResponse create(EmployeeRequest request){
-        if(repository.findByEmail(request.getEmail()).isPresent())
-            throw new EmailAlreadyRegisteredException("Email " + request.getEmail() + " already registered!");
+        if(repository.findByEmail(request.email()).isPresent())
+            throw new EmailAlreadyRegisteredException("Email " + request.email() + " already registered!");
 
         Employee employee = mapper.toEntity(request);
         Employee savedEmployee = repository.save(employee);
@@ -68,9 +68,9 @@ public class EmployeeService {
     @Transactional
     public EmployeeResponse update(UUID id, EmployeeUpdateRequest request){
         Employee employeeExists = findEmployeeByIdOrThrow(id);
-        Optional<Employee> emailAlreadyRegistered = repository.findByEmail(request.getEmail());
+        Optional<Employee> emailAlreadyRegistered = repository.findByEmail(request.email());
         if(emailAlreadyRegistered.isPresent() && !emailAlreadyRegistered.get().getId().equals(employeeExists.getId()))
-            throw new EmailAlreadyRegisteredException("Email " + request.getEmail() + " already registered!");
+            throw new EmailAlreadyRegisteredException("Email " + request.email() + " already registered!");
 
         updateEmployeeData(request, employeeExists);
         Employee savedEmployee = repository.save(employeeExists);
