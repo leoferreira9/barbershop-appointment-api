@@ -41,7 +41,7 @@ public class ServiceItemController {
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(savedServiceItem.getId())
+                .buildAndExpand(savedServiceItem.id())
                 .toUri();
 
         return ResponseEntity.created(location).body(savedServiceItem);

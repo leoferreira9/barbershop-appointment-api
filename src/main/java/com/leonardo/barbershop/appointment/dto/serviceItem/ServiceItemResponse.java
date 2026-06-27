@@ -1,23 +1,13 @@
 package com.leonardo.barbershop.appointment.dto.serviceItem;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-public class ServiceItemResponse {
-
-    private UUID id;
-    private String name;
-    private String description;
-    private BigDecimal price;
-    private int durationMinutes;
-    private boolean active;
-}
+public record ServiceItemResponse(
+        UUID id,
+        String name,
+        String description,
+        BigDecimal price,
+        int durationMinutes,
+        boolean active
+) {}

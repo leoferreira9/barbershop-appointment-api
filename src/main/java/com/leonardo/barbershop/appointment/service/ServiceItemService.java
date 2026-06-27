@@ -34,10 +34,10 @@ public class ServiceItemService {
     }
 
     private void updateServiceItemData(ServiceItem serviceItem, ServiceItemUpdateRequest request){
-        serviceItem.setName(request.getName());
-        serviceItem.setPrice(request.getPrice());
-        serviceItem.setDescription(request.getDescription());
-        serviceItem.setDurationMinutes(request.getDurationMinutes());
+        serviceItem.setName(request.name());
+        serviceItem.setPrice(request.price());
+        serviceItem.setDescription(request.description());
+        serviceItem.setDurationMinutes(request.durationMinutes());
     }
 
     @Transactional
