@@ -1,5 +1,6 @@
 package com.leonardo.barbershop.appointment.controller;
 
+import com.leonardo.barbershop.appointment.dto.client.ClientPatchRequest;
 import com.leonardo.barbershop.appointment.dto.client.ClientRequest;
 import com.leonardo.barbershop.appointment.dto.client.ClientResponse;
 import com.leonardo.barbershop.appointment.dto.client.ClientUpdateRequest;
@@ -81,6 +82,20 @@ public class ClientController {
             @Parameter(description = "Client ID", required = true, example = "f47ac10b-58cc-4372-a567-0e02b2c3d479") @PathVariable UUID id,
             @RequestBody @Valid ClientUpdateRequest request){
         return ResponseEntity.ok(service.update(id, request));
+    }
+
+    @Operation(summary = "Partially update client", description = "Partially updates a client")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Client successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid data"),
+            @ApiResponse(responseCode = "404", description = "Client not found"),
+            @ApiResponse(responseCode = "409", description = "Email already registered")
+    })
+    @PatchMapping("/{id}")
+    public ResponseEntity<ClientResponse> partialUpdate(
+            @Parameter(description = "Client ID", required = true, example = "f47ac10b-58cc-4372-a567-0e02b2c3d479") @PathVariable UUID id,
+            @RequestBody @Valid ClientPatchRequest request){
+        return ResponseEntity.ok(service.partialUpdate(id, request));
     }
 
     @Operation(summary = "Deactivate client", description = "Deactivates a client by its ID")

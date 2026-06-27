@@ -1,5 +1,6 @@
 package com.leonardo.barbershop.appointment.service;
 
+import com.leonardo.barbershop.appointment.dto.client.ClientPatchRequest;
 import com.leonardo.barbershop.appointment.dto.client.ClientRequest;
 import com.leonardo.barbershop.appointment.dto.client.ClientResponse;
 import com.leonardo.barbershop.appointment.dto.client.ClientUpdateRequest;
@@ -43,6 +44,28 @@ public class ClientService {
         client.setLastName(request.lastName());
     }
 
+    private void patchClientData(ClientPatchRequest request, Client client){
+        if(request.firstName() != null && !request.firstName().isBlank()){
+            client.setFirstName(request.firstName());
+        }
+
+        if(request.lastName() != null && !request.lastName().isBlank()){
+            client.setLastName(request.lastName());
+        }
+
+        if(request.email() != null && !request.email().isBlank()){
+            client.setEmail(request.email());
+        }
+
+        if(request.phone() != null && !request.phone().isBlank()){
+            client.setPhone(request.phone());
+        }
+
+        if(request.birthDate() != null){
+            client.setBirthDate(request.birthDate());
+        }
+    }
+
     @Transactional
     public ClientResponse create(ClientRequest request){
         if(repository.findByEmail(request.email()).isPresent())
@@ -76,6 +99,21 @@ public class ClientService {
             throw new EmailAlreadyRegisteredException("Email " + request.email() + " already registered!");
 
         updateClientData(request, clientExists);
+        Client savedClient = repository.save(clientExists);
+        return mapper.toDto(savedClient);
+    }
+
+    @Transactional
+    public ClientResponse partialUpdate(UUID id, ClientPatchRequest request){
+        Client clientExists = findClientByIdOrThrow(id);
+        if(request.email() != null && !request.email().isBlank()){
+            Optional<Client> emailAlreadyRegistered = repository.findByEmail(request.email());
+            if(emailAlreadyRegistered.isPresent() && !emailAlreadyRegistered.get().getId().equals(clientExists.getId())){
+                throw new EmailAlreadyRegisteredException("Email " + request.email() + " already registered!");
+            }
+        }
+
+        patchClientData(request, clientExists);
         Client savedClient = repository.save(clientExists);
         return mapper.toDto(savedClient);
     }
