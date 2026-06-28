@@ -1,5 +1,6 @@
 package com.leonardo.barbershop.appointment.service;
 
+import com.leonardo.barbershop.appointment.dto.employee.EmployeePatchRequest;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeRequest;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeResponse;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeUpdateRequest;
@@ -41,6 +42,20 @@ public class EmployeeService {
         employee.setPhone(request.phone());
     }
 
+    private void patchEmployeeData(Employee employee, EmployeePatchRequest request){
+        if(request.email() != null && !request.email().isBlank()){
+            employee.setEmail(request.email());
+        }
+
+        if(request.name() != null && !request.name().isBlank()){
+            employee.setName(request.name());
+        }
+
+        if(request.phone() != null && !request.phone().isBlank()){
+            employee.setPhone(request.phone());
+        }
+    }
+
     @Transactional
     public EmployeeResponse create(EmployeeRequest request){
         if(repository.findByEmail(request.email()).isPresent())
@@ -73,6 +88,21 @@ public class EmployeeService {
             throw new EmailAlreadyRegisteredException("Email " + request.email() + " already registered!");
 
         updateEmployeeData(request, employeeExists);
+        Employee savedEmployee = repository.save(employeeExists);
+        return mapper.toDto(savedEmployee);
+    }
+
+    @Transactional
+    public EmployeeResponse partialUpdate(UUID id, EmployeePatchRequest request){
+        Employee employeeExists = findEmployeeByIdOrThrow(id);
+        if(request.email() != null && !request.email().isBlank()){
+            Optional<Employee> emailAlreadyRegistered = repository.findByEmail(request.email());
+            if(emailAlreadyRegistered.isPresent() && !emailAlreadyRegistered.get().getId().equals(employeeExists.getId())){
+                throw new EmailAlreadyRegisteredException("Email " + request.email() + " already registered!");
+            }
+        }
+
+        patchEmployeeData(employeeExists, request);
         Employee savedEmployee = repository.save(employeeExists);
         return mapper.toDto(savedEmployee);
     }

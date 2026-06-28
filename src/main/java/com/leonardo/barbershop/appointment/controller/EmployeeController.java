@@ -1,5 +1,6 @@
 package com.leonardo.barbershop.appointment.controller;
 
+import com.leonardo.barbershop.appointment.dto.employee.EmployeePatchRequest;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeRequest;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeResponse;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeUpdateRequest;
@@ -81,6 +82,20 @@ public class EmployeeController {
             @Parameter(description = "Employee ID", required = true, example = "f47ac10b-58cc-4372-a567-0e02b2c3d479") @PathVariable UUID id,
             @RequestBody @Valid EmployeeUpdateRequest request){
         return ResponseEntity.ok(service.update(id, request));
+    }
+
+    @Operation(summary = "Partially update employee", description = "Partially updates an employee")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Employee successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid data"),
+            @ApiResponse(responseCode = "404", description = "Employee not found"),
+            @ApiResponse(responseCode = "409", description = "Email already registered")
+    })
+    @PatchMapping("/{id}")
+    public ResponseEntity<EmployeeResponse> partialUpdate(
+            @Parameter(description = "Employee ID", required = true, example = "f47ac10b-58cc-4372-a567-0e02b2c3d479") @PathVariable UUID id,
+            @RequestBody @Valid EmployeePatchRequest request){
+        return ResponseEntity.ok(service.partialUpdate(id, request));
     }
 
     @Operation(summary = "Deactivate employee", description = "Deactivates an employee by its ID")
