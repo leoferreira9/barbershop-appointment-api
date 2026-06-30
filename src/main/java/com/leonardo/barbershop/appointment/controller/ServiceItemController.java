@@ -1,5 +1,6 @@
 package com.leonardo.barbershop.appointment.controller;
 
+import com.leonardo.barbershop.appointment.dto.serviceItem.ServiceItemPatchRequest;
 import com.leonardo.barbershop.appointment.dto.serviceItem.ServiceItemRequest;
 import com.leonardo.barbershop.appointment.dto.serviceItem.ServiceItemResponse;
 import com.leonardo.barbershop.appointment.dto.serviceItem.ServiceItemUpdateRequest;
@@ -79,6 +80,17 @@ public class ServiceItemController {
             @Parameter(description = "Service item ID", required = true, example = "f47ac10b-58cc-4372-a567-0e02b2c3d479") @PathVariable UUID id,
             @RequestBody @Valid ServiceItemUpdateRequest request){
         return ResponseEntity.ok(service.update(id, request));
+    }
+
+    @Operation(summary = "Partially update service item", description = "Partially updates a service item")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Service item successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid data"),
+            @ApiResponse(responseCode = "404", description = "Service item not found")
+    })
+    @PatchMapping("/{id}")
+    public ResponseEntity<ServiceItemResponse> partialUpdate(@PathVariable UUID id, @RequestBody @Valid ServiceItemPatchRequest request){
+        return ResponseEntity.ok(service.partialUpdate(id, request));
     }
 
     @Operation(summary = "Deactivate service item", description = "Deactivates a service item by its ID")

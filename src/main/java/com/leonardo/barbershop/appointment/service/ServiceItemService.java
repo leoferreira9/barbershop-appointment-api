@@ -1,5 +1,6 @@
 package com.leonardo.barbershop.appointment.service;
 
+import com.leonardo.barbershop.appointment.dto.serviceItem.ServiceItemPatchRequest;
 import com.leonardo.barbershop.appointment.dto.serviceItem.ServiceItemRequest;
 import com.leonardo.barbershop.appointment.dto.serviceItem.ServiceItemResponse;
 import com.leonardo.barbershop.appointment.dto.serviceItem.ServiceItemUpdateRequest;
@@ -40,6 +41,24 @@ public class ServiceItemService {
         serviceItem.setDurationMinutes(request.durationMinutes());
     }
 
+    private void patchServiceItemData(ServiceItem serviceItem, ServiceItemPatchRequest request){
+        if(request.name() != null && !request.name().isBlank()){
+            serviceItem.setName(request.name());
+        }
+
+        if(request.description() != null && !request.description().isBlank()){
+            serviceItem.setDescription(request.description());
+        }
+
+        if(request.price() != null){
+            serviceItem.setPrice(request.price());
+        }
+
+        if(request.durationMinutes() != null){
+            serviceItem.setDurationMinutes(request.durationMinutes());
+        }
+    }
+
     @Transactional
     public ServiceItemResponse create(ServiceItemRequest request){
         ServiceItem serviceItem = mapper.toEntity(request);
@@ -64,6 +83,14 @@ public class ServiceItemService {
     public ServiceItemResponse update(UUID id, ServiceItemUpdateRequest request){
         ServiceItem serviceItemExists = findServiceItemByIdOrThrow(id);
         updateServiceItemData(serviceItemExists, request);
+        ServiceItem savedServiceItem = repository.save(serviceItemExists);
+        return mapper.toDto(savedServiceItem);
+    }
+
+    @Transactional
+    public ServiceItemResponse partialUpdate(UUID id, ServiceItemPatchRequest request){
+        ServiceItem serviceItemExists = findServiceItemByIdOrThrow(id);
+        patchServiceItemData(serviceItemExists, request);
         ServiceItem savedServiceItem = repository.save(serviceItemExists);
         return mapper.toDto(savedServiceItem);
     }
