@@ -12,6 +12,7 @@ import com.leonardo.barbershop.appointment.filters.EmployeeFilter;
 import com.leonardo.barbershop.appointment.mapper.EmployeeMapper;
 import com.leonardo.barbershop.appointment.model.Employee;
 import com.leonardo.barbershop.appointment.repository.EmployeeRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class EmployeeService {
 
@@ -58,76 +60,101 @@ public class EmployeeService {
 
     @Transactional
     public EmployeeResponse create(EmployeeRequest request){
-        if(repository.findByEmail(request.email()).isPresent())
+        if(repository.findByEmail(request.email()).isPresent()){
+            log.warn("Email already registered: {}", request.email());
             throw new EmailAlreadyRegisteredException("Email " + request.email() + " already registered!");
+        }
+
+        log.info("Creating employee with email: {}", request.email());
 
         Employee employee = mapper.toEntity(request);
         Employee savedEmployee = repository.save(employee);
+
+        log.info("Employee created successfully with ID: {}", savedEmployee.getId());
         return mapper.toDto(savedEmployee);
     }
 
     public EmployeeResponse findById(UUID id){
+        log.info("Finding employee with ID: {}", id);
         Employee employeeExists = findEmployeeByIdOrThrow(id);
+        log.info("Employee with ID: {} successfully found", id);
         return mapper.toDto(employeeExists);
     }
 
     public Page<EmployeeResponse> findAll(String name, Boolean active, Pageable pageable){
-
+        log.info("Finding all employees");
         Specification<Employee> specification = Specification
                 .where(EmployeeFilter.hasName(name))
                 .and(EmployeeFilter.hasActive(active));
 
-        return repository.findAll(specification, pageable).map(mapper::toDto);
+        Page<EmployeeResponse> employees = repository.findAll(specification, pageable).map(mapper::toDto);
+        log.info("Found: {} employees", employees.getTotalElements());
+        return employees;
     }
 
     @Transactional
     public EmployeeResponse update(UUID id, EmployeeUpdateRequest request){
+        log.info("Updating employee with ID: {} (PUT)", id);
         Employee employeeExists = findEmployeeByIdOrThrow(id);
         Optional<Employee> emailAlreadyRegistered = repository.findByEmail(request.email());
-        if(emailAlreadyRegistered.isPresent() && !emailAlreadyRegistered.get().getId().equals(employeeExists.getId()))
+        if(emailAlreadyRegistered.isPresent() && !emailAlreadyRegistered.get().getId().equals(employeeExists.getId())){
+            log.warn("Email already registered: {}", request.email());
             throw new EmailAlreadyRegisteredException("Email " + request.email() + " already registered!");
+        }
 
         updateEmployeeData(request, employeeExists);
         Employee savedEmployee = repository.save(employeeExists);
+        log.info("Employee with ID: {} successfully updated", savedEmployee.getId());
         return mapper.toDto(savedEmployee);
     }
 
     @Transactional
     public EmployeeResponse partialUpdate(UUID id, EmployeePatchRequest request){
+        log.info("Updating employee with ID: {} (PATCH)", id);
         Employee employeeExists = findEmployeeByIdOrThrow(id);
         if(request.email() != null && !request.email().isBlank()){
             Optional<Employee> emailAlreadyRegistered = repository.findByEmail(request.email());
             if(emailAlreadyRegistered.isPresent() && !emailAlreadyRegistered.get().getId().equals(employeeExists.getId())){
+                log.warn("Email already registered: {}", request.email());
                 throw new EmailAlreadyRegisteredException("Email " + request.email() + " already registered!");
             }
         }
 
         patchEmployeeData(employeeExists, request);
         Employee savedEmployee = repository.save(employeeExists);
+        log.info("Employee with ID: {} partially updated", savedEmployee.getId());
         return mapper.toDto(savedEmployee);
     }
 
     @Transactional
     public EmployeeResponse deactivate(UUID id){
+        log.info("Deactivating employee with ID: {}", id);
         Employee employeeExists = findEmployeeByIdOrThrow(id);
 
-        if(!employeeExists.isActive())
+        if(!employeeExists.isActive()){
+            log.warn("Employee already deactivated with ID: {}", id);
             throw new EntityAlreadyDeactivatedException("Employee already deactivated");
+        }
 
         employeeExists.setActive(false);
         Employee savedEmployee = repository.save(employeeExists);
+        log.info("Employee with ID: {} successfully deactivated", id);
         return mapper.toDto(savedEmployee);
     }
 
     @Transactional
     public EmployeeResponse activate(UUID id){
+        log.info("Activating employee with ID: {}", id);
         Employee employeeExists = findEmployeeByIdOrThrow(id);
 
-        if(employeeExists.isActive())
+        if(employeeExists.isActive()){
+            log.warn("Employee already activated with ID: {}", id);
             throw new EntityAlreadyActivatedException("Employee already activated");
+        }
 
         employeeExists.setActive(true);
         Employee savedEmployee = repository.save(employeeExists);
+        log.info("Employee with ID: {} successfully activated", id);
         return mapper.toDto(savedEmployee);
     }
 }
