@@ -138,7 +138,7 @@ public class EmployeeService {
 
         employeeExists.setActive(false);
         Employee savedEmployee = repository.save(employeeExists);
-        log.info("Employee with ID: {} successfully deactivated", id);
+        log.info("Employee with ID: {} successfully deactivated", savedEmployee.getId());
         return mapper.toDto(savedEmployee);
     }
 
@@ -154,7 +154,7 @@ public class EmployeeService {
 
         employeeExists.setActive(true);
         Employee savedEmployee = repository.save(employeeExists);
-        log.info("Employee with ID: {} successfully activated", id);
+        log.info("Employee with ID: {} successfully activated", savedEmployee.getId());
         return mapper.toDto(savedEmployee);
     }
 }
