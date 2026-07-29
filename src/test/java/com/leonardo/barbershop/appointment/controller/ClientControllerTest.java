@@ -2,6 +2,7 @@ package com.leonardo.barbershop.appointment.controller;
 
 import com.leonardo.barbershop.appointment.dto.client.ClientRequest;
 import com.leonardo.barbershop.appointment.dto.client.ClientResponse;
+import com.leonardo.barbershop.appointment.dto.client.ClientUpdateRequest;
 import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
 import com.leonardo.barbershop.appointment.service.ClientService;
 import org.junit.jupiter.api.Test;
@@ -19,8 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ClientController.class)
@@ -102,5 +102,61 @@ class ClientControllerTest {
         ).andExpect(status().isCreated());
 
         verify(clientService).create(clientRequest);
+    }
+
+    @Test
+    void shouldUpdateClient() throws Exception {
+        ClientUpdateRequest clientUpdateRequest = new ClientUpdateRequest(
+                "Firstname",
+                "Lastname",
+                "client@email.com",
+                "(11) 90000-0000",
+                LocalDate.of(2002, 01, 02)
+        );
+
+
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        ClientResponse clientResponse = new ClientResponse(id,
+                "Firstname",
+                "Lastname",
+                "client@email.com",
+                "(11) 90000-0000",
+                LocalDate.of(2002, 01, 02),
+                true
+        );
+
+        when(clientService.update(id, clientUpdateRequest))
+                .thenReturn(clientResponse);
+
+        mvc.perform(
+                put("/api/v1/clients/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clientUpdateRequest))
+        ).andExpect(status().isOk());
+
+        verify(clientService).update(id, clientUpdateRequest);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenUpdatingNonexistentClient() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        ClientUpdateRequest clientUpdateRequest = new ClientUpdateRequest(
+                "Firstname",
+                "Lastname",
+                "client@email.com",
+                "(11) 90000-0000",
+                LocalDate.of(2002, 01, 02)
+        );
+
+        when(clientService.update(id, clientUpdateRequest))
+                .thenThrow(new EntityNotFoundException("Client not found with ID: " + id));
+
+        mvc.perform(
+                put("/api/v1/clients/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clientUpdateRequest))
+        ).andExpect(status().isNotFound());
+
+        verify(clientService).update(id, clientUpdateRequest);
     }
 }
