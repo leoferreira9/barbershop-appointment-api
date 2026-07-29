@@ -1,5 +1,6 @@
 package com.leonardo.barbershop.appointment.controller;
 
+import com.leonardo.barbershop.appointment.dto.client.ClientRequest;
 import com.leonardo.barbershop.appointment.dto.client.ClientResponse;
 import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
 import com.leonardo.barbershop.appointment.service.ClientService;
@@ -8,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,6 +20,7 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ClientController.class)
@@ -27,6 +31,9 @@ class ClientControllerTest {
 
     @MockitoBean
     private ClientService clientService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void shouldReturnClientByIdWithoutErrors() throws Exception {
@@ -79,5 +86,21 @@ class ClientControllerTest {
                .andExpect(status().isOk());
 
         verify(clientService).findAll(any(), any(), any(Pageable.class));
+    }
+
+    @Test
+    void shouldCreateClient() throws Exception {
+        ClientRequest clientRequest = new ClientRequest("Firstname", "Lastname", "client@email.com", "(11) 90000-0000", LocalDate.of(2002, 01, 02));
+
+        when(clientService.create(clientRequest))
+                .thenReturn(new ClientResponse(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"), "Firstname", "Lastname", "client@email.com", "(11) 90000-0000", LocalDate.of(2002, 01, 02), true));
+
+        mvc.perform(
+                post("/api/v1/clients")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clientRequest))
+        ).andExpect(status().isCreated());
+
+        verify(clientService).create(clientRequest);
     }
 }
