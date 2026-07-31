@@ -1,8 +1,12 @@
 package com.leonardo.barbershop.appointment.controller;
 
+import com.leonardo.barbershop.appointment.dto.client.ClientPatchRequest;
 import com.leonardo.barbershop.appointment.dto.client.ClientRequest;
 import com.leonardo.barbershop.appointment.dto.client.ClientResponse;
 import com.leonardo.barbershop.appointment.dto.client.ClientUpdateRequest;
+import com.leonardo.barbershop.appointment.exception.EmailAlreadyRegisteredException;
+import com.leonardo.barbershop.appointment.exception.EntityAlreadyActivatedException;
+import com.leonardo.barbershop.appointment.exception.EntityAlreadyDeactivatedException;
 import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
 import com.leonardo.barbershop.appointment.service.ClientService;
 import org.junit.jupiter.api.Test;
@@ -158,5 +162,223 @@ class ClientControllerTest {
         ).andExpect(status().isNotFound());
 
         verify(clientService).update(id, clientUpdateRequest);
+    }
+
+    @Test
+    void shouldPartiallyUpdateClient() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        ClientPatchRequest clientPatchRequest = new ClientPatchRequest(
+                "Firstname",
+                "Lastname",
+                "client@email.com",
+                "(11) 90000-0000",
+                LocalDate.of(2002, 01, 02)
+        );
+
+        ClientResponse clientResponse = new ClientResponse(id,
+                "Firstname",
+                "Lastname",
+                "client@email.com",
+                "(11) 90000-0000",
+                LocalDate.of(2002, 01, 02),
+                true
+        );
+
+        when(clientService.partialUpdate(id, clientPatchRequest))
+                .thenReturn(clientResponse);
+
+        mvc.perform(
+                patch("/api/v1/clients/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clientPatchRequest))
+                ).andExpect(status().isOk());
+
+        verify(clientService).partialUpdate(id, clientPatchRequest);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenPartiallyUpdatingNonexistentClient() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        ClientPatchRequest clientPatchRequest = new ClientPatchRequest(
+                "Firstname",
+                "Lastname",
+                "client@email.com",
+                "(11) 90000-0000",
+                LocalDate.of(2002, 01, 02)
+        );
+
+        when(clientService.partialUpdate(id, clientPatchRequest))
+                .thenThrow(new EntityNotFoundException("Client not found with ID: " + id));
+
+        mvc.perform(
+                patch("/api/v1/clients/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clientPatchRequest))
+        ).andExpect(status().isNotFound());
+
+        verify(clientService).partialUpdate(id, clientPatchRequest);
+    }
+
+    @Test
+    void shouldDeactivateClient() throws Exception{
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        ClientResponse clientResponse = new ClientResponse(id,
+                "Firstname",
+                "Lastname",
+                "client@email.com",
+                "(11) 90000-0000",
+                LocalDate.of(2002, 01, 02),
+                false
+        );
+
+        when(clientService.deactivate(id))
+                .thenReturn(clientResponse);
+
+        mvc.perform(
+                patch("/api/v1/clients/{id}/deactivate", id)
+        ).andExpect(status().isOk());
+
+        verify(clientService).deactivate(id);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenDeactivatingNonexistentClient() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+
+        when(clientService.deactivate(id))
+                .thenThrow(new EntityNotFoundException("Client not found with ID: " + id));
+
+        mvc.perform(
+                patch("/api/v1/clients/{id}/deactivate", id)
+        ).andExpect(status().isNotFound());
+
+        verify(clientService).deactivate(id);
+    }
+
+    @Test
+    void shouldActivateClient() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        ClientResponse clientResponse = new ClientResponse(id,
+                "Firstname",
+                "Lastname",
+                "client@email.com",
+                "(11) 90000-0000",
+                LocalDate.of(2002, 01, 02),
+                true
+        );
+
+        when(clientService.activate(id))
+                .thenReturn(clientResponse);
+
+        mvc.perform(
+                patch("/api/v1/clients/{id}/activate", id)
+        ).andExpect(status().isOk());
+
+        verify(clientService).activate(id);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenActivatingNonexistentClient() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+
+        when(clientService.activate(id))
+                .thenThrow(new EntityNotFoundException("Client not found with ID: " + id));
+
+        mvc.perform(
+                patch("/api/v1/clients/{id}/activate", id)
+        ).andExpect(status().isNotFound());
+
+        verify(clientService).activate(id);
+    }
+
+    @Test
+    void shouldReturnConflictWhenActivatingAlreadyActiveClient() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+
+        when(clientService.activate(id))
+                .thenThrow(new EntityAlreadyActivatedException("Client already activated"));
+
+        mvc.perform(
+                patch("/api/v1/clients/{id}/activate", id)
+        ).andExpect(status().isConflict());
+
+        verify(clientService).activate(id);
+    }
+
+    @Test
+    void shouldReturnConflictWhenDeactivatingAlreadyInactiveClient() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+
+        when(clientService.deactivate(id))
+                .thenThrow(new EntityAlreadyDeactivatedException("Client already deactivated"));
+
+        mvc.perform(
+                patch("/api/v1/clients/{id}/deactivate", id)
+        ).andExpect(status().isConflict());
+
+        verify(clientService).deactivate(id);
+    }
+
+    @Test
+    void shouldReturnConflictWhenCreatingClientWithRegisteredEmail() throws Exception {
+        ClientRequest clientRequest = new ClientRequest("Firstname", "Lastname", "client@email.com", "(11) 90000-0000", LocalDate.of(2002, 01, 02));
+
+        when(clientService.create(clientRequest))
+                .thenThrow(new EmailAlreadyRegisteredException("Email " + clientRequest.email() + " already registered!"));
+
+        mvc.perform(
+                post("/api/v1/clients")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clientRequest))
+        ).andExpect(status().isConflict());
+
+        verify(clientService).create(clientRequest);
+    }
+
+    @Test
+    void shouldReturnConflictWhenUpdatingClientWithRegisteredEmail() throws Exception {
+        ClientUpdateRequest clientUpdateRequest = new ClientUpdateRequest(
+                "Firstname",
+                "Lastname",
+                "client@email.com",
+                "(11) 90000-0000",
+                LocalDate.of(2002, 01, 02)
+        );
+
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+
+        when(clientService.update(id, clientUpdateRequest))
+                .thenThrow(new EmailAlreadyRegisteredException("Email " + clientUpdateRequest.email() + " already registered!"));
+
+        mvc.perform(
+                put("/api/v1/clients/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clientUpdateRequest))
+        ).andExpect(status().isConflict());
+
+        verify(clientService).update(id, clientUpdateRequest);
+    }
+
+    @Test
+    void shouldReturnConflictWhenPartiallyUpdatingClientWithRegisteredEmail() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        ClientPatchRequest clientPatchRequest = new ClientPatchRequest(
+                "Firstname",
+                "Lastname",
+                "client@email.com",
+                "(11) 90000-0000",
+                LocalDate.of(2002, 01, 02)
+        );
+
+        when(clientService.partialUpdate(id, clientPatchRequest))
+                .thenThrow(new EmailAlreadyRegisteredException("Email " + clientPatchRequest.email() + " already registered!"));
+
+        mvc.perform(
+                patch("/api/v1/clients/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clientPatchRequest))
+        ).andExpect(status().isConflict());
+
+        verify(clientService).partialUpdate(id, clientPatchRequest);
     }
 }
