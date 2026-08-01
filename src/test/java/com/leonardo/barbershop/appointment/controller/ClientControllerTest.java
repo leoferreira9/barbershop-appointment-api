@@ -381,4 +381,63 @@ class ClientControllerTest {
 
         verify(clientService).partialUpdate(id, clientPatchRequest);
     }
+
+    @Test
+    void shouldReturnBadRequestWhenCreatingInvalidClient() throws Exception {
+        ClientRequest clientRequest = new ClientRequest(
+                "",
+                "Lastname",
+                "client@email.com",
+                "(11) 90000-0000",
+                LocalDate.of(2002, 1, 2)
+        );
+
+        mvc.perform(
+                post("/api/v1/clients")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clientRequest))
+        ).andExpect(status().isBadRequest());
+
+        verify(clientService, never()).create(any(ClientRequest.class));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenUpdatingInvalidClient() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        ClientUpdateRequest clientUpdateRequest = new ClientUpdateRequest(
+                "",
+                "Lastname",
+                "client@email.com",
+                "(11) 90000-0000",
+                LocalDate.of(2002, 1, 2)
+        );
+
+        mvc.perform(
+                put("/api/v1/clients/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clientUpdateRequest))
+        ).andExpect(status().isBadRequest());
+
+        verify(clientService, never()).update(any(UUID.class), any(ClientUpdateRequest.class));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenPartiallyUpdatingInvalidClient() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        ClientPatchRequest clientPatchRequest = new ClientPatchRequest(
+                null,
+                null,
+                "invalid-email",
+                null,
+                null
+        );
+
+        mvc.perform(
+                patch("/api/v1/clients/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clientPatchRequest))
+        ).andExpect(status().isBadRequest());
+
+        verify(clientService, never()).partialUpdate(any(UUID.class), any(ClientPatchRequest.class));
+    }
 }
