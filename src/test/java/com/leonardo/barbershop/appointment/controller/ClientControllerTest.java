@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ClientController.class)
@@ -50,7 +51,10 @@ class ClientControllerTest {
 
         mvc.perform(
                 get("/api/v1/clients/{id}", id))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.firstName").value("Firstname"))
+                .andExpect(jsonPath("$.email").value("email@email.com"));
     }
 
     @Test
@@ -72,7 +76,8 @@ class ClientControllerTest {
         UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
 
         ClientResponse clientResponse = new ClientResponse(
-                id, "firstName",
+                id,
+                "firstName",
                 "Lastname",
                 "cliente@email.com",
                 "(00)00000-0000",
@@ -87,23 +92,29 @@ class ClientControllerTest {
        mvc.perform(get("/api/v1/clients")
                .param("name", "Name")
                .param("active", "true"))
-               .andExpect(status().isOk());
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.content[0].id").value(id.toString()))
+               .andExpect(jsonPath("$.content[0].firstName").value("firstName"))
+               .andExpect(jsonPath("$.content[0].email").value("cliente@email.com"));
 
         verify(clientService).findAll(any(), any(), any(Pageable.class));
     }
 
     @Test
     void shouldCreateClient() throws Exception {
-        ClientRequest clientRequest = new ClientRequest("Firstname", "Lastname", "client@email.com", "(11) 90000-0000", LocalDate.of(2002, 01, 02));
+        ClientRequest clientRequest = new ClientRequest("Firstname", "Lastname", "client@email.com", "(11) 90000-0000", LocalDate.of(2002, 1, 2));
 
         when(clientService.create(clientRequest))
-                .thenReturn(new ClientResponse(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"), "Firstname", "Lastname", "client@email.com", "(11) 90000-0000", LocalDate.of(2002, 01, 02), true));
+                .thenReturn(new ClientResponse(UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"), "Firstname", "Lastname", "client@email.com", "(11) 90000-0000", LocalDate.of(2002, 1, 2), true));
 
         mvc.perform(
                 post("/api/v1/clients")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(clientRequest))
-        ).andExpect(status().isCreated());
+        ).andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value("f47ac10b-58cc-4372-a567-0e02b2c3d479"))
+                .andExpect(jsonPath("$.firstName").value("Firstname"))
+                .andExpect(jsonPath("$.email").value("client@email.com"));
 
         verify(clientService).create(clientRequest);
     }
@@ -115,7 +126,7 @@ class ClientControllerTest {
                 "Lastname",
                 "client@email.com",
                 "(11) 90000-0000",
-                LocalDate.of(2002, 01, 02)
+                LocalDate.of(2002, 1, 2)
         );
 
 
@@ -125,7 +136,7 @@ class ClientControllerTest {
                 "Lastname",
                 "client@email.com",
                 "(11) 90000-0000",
-                LocalDate.of(2002, 01, 02),
+                LocalDate.of(2002, 1, 2),
                 true
         );
 
@@ -136,7 +147,10 @@ class ClientControllerTest {
                 put("/api/v1/clients/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(clientUpdateRequest))
-        ).andExpect(status().isOk());
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.firstName").value("Firstname"))
+                .andExpect(jsonPath("$.email").value("client@email.com"));
 
         verify(clientService).update(id, clientUpdateRequest);
     }
@@ -149,7 +163,7 @@ class ClientControllerTest {
                 "Lastname",
                 "client@email.com",
                 "(11) 90000-0000",
-                LocalDate.of(2002, 01, 02)
+                LocalDate.of(2002, 1, 2)
         );
 
         when(clientService.update(id, clientUpdateRequest))
@@ -172,7 +186,7 @@ class ClientControllerTest {
                 "Lastname",
                 "client@email.com",
                 "(11) 90000-0000",
-                LocalDate.of(2002, 01, 02)
+                LocalDate.of(2002, 1, 2)
         );
 
         ClientResponse clientResponse = new ClientResponse(id,
@@ -180,7 +194,7 @@ class ClientControllerTest {
                 "Lastname",
                 "client@email.com",
                 "(11) 90000-0000",
-                LocalDate.of(2002, 01, 02),
+                LocalDate.of(2002, 1, 2),
                 true
         );
 
@@ -191,7 +205,10 @@ class ClientControllerTest {
                 patch("/api/v1/clients/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(clientPatchRequest))
-                ).andExpect(status().isOk());
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.firstName").value("Firstname"))
+                .andExpect(jsonPath("$.email").value("client@email.com"));
 
         verify(clientService).partialUpdate(id, clientPatchRequest);
     }
@@ -204,7 +221,7 @@ class ClientControllerTest {
                 "Lastname",
                 "client@email.com",
                 "(11) 90000-0000",
-                LocalDate.of(2002, 01, 02)
+                LocalDate.of(2002, 1, 2)
         );
 
         when(clientService.partialUpdate(id, clientPatchRequest))
@@ -227,7 +244,7 @@ class ClientControllerTest {
                 "Lastname",
                 "client@email.com",
                 "(11) 90000-0000",
-                LocalDate.of(2002, 01, 02),
+                LocalDate.of(2002, 1, 2),
                 false
         );
 
@@ -236,7 +253,11 @@ class ClientControllerTest {
 
         mvc.perform(
                 patch("/api/v1/clients/{id}/deactivate", id)
-        ).andExpect(status().isOk());
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.firstName").value("Firstname"))
+                .andExpect(jsonPath("$.email").value("client@email.com"))
+                .andExpect(jsonPath("$.active").value(false));
 
         verify(clientService).deactivate(id);
     }
@@ -263,7 +284,7 @@ class ClientControllerTest {
                 "Lastname",
                 "client@email.com",
                 "(11) 90000-0000",
-                LocalDate.of(2002, 01, 02),
+                LocalDate.of(2002, 1, 2),
                 true
         );
 
@@ -272,7 +293,11 @@ class ClientControllerTest {
 
         mvc.perform(
                 patch("/api/v1/clients/{id}/activate", id)
-        ).andExpect(status().isOk());
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.firstName").value("Firstname"))
+                .andExpect(jsonPath("$.email").value("client@email.com"))
+                .andExpect(jsonPath("$.active").value(true));
 
         verify(clientService).activate(id);
     }
@@ -321,7 +346,7 @@ class ClientControllerTest {
 
     @Test
     void shouldReturnConflictWhenCreatingClientWithRegisteredEmail() throws Exception {
-        ClientRequest clientRequest = new ClientRequest("Firstname", "Lastname", "client@email.com", "(11) 90000-0000", LocalDate.of(2002, 01, 02));
+        ClientRequest clientRequest = new ClientRequest("Firstname", "Lastname", "client@email.com", "(11) 90000-0000", LocalDate.of(2002, 1, 2));
 
         when(clientService.create(clientRequest))
                 .thenThrow(new EmailAlreadyRegisteredException("Email " + clientRequest.email() + " already registered!"));
@@ -342,7 +367,7 @@ class ClientControllerTest {
                 "Lastname",
                 "client@email.com",
                 "(11) 90000-0000",
-                LocalDate.of(2002, 01, 02)
+                LocalDate.of(2002, 1, 2)
         );
 
         UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
@@ -367,7 +392,7 @@ class ClientControllerTest {
                 "Lastname",
                 "client@email.com",
                 "(11) 90000-0000",
-                LocalDate.of(2002, 01, 02)
+                LocalDate.of(2002, 1, 2)
         );
 
         when(clientService.partialUpdate(id, clientPatchRequest))
