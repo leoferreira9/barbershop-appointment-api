@@ -2,6 +2,7 @@ package com.leonardo.barbershop.appointment.controller;
 
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeRequest;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeResponse;
+import com.leonardo.barbershop.appointment.exception.EmailAlreadyRegisteredException;
 import com.leonardo.barbershop.appointment.service.EmployeeService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,22 @@ class EmployeeControllerTest {
                 .andExpect(jsonPath("$.email").value("emp@email.com"))
                 .andExpect(jsonPath("$.phone").value("(11) 90000-0000"))
                 .andExpect(jsonPath("$.active").value(true));
+
+        verify(employeeService).create(employeeRequest);
+    }
+
+    @Test
+    void shouldReturnConflictWhenCreatingEmployeeWithRegisteredEmail() throws Exception{
+        EmployeeRequest employeeRequest = new EmployeeRequest("Name", "(11) 90000-0000", "emp@email.com");
+
+        when(employeeService.create(employeeRequest))
+                .thenThrow(new EmailAlreadyRegisteredException("Email " + employeeRequest.email() + " already registered!"));
+
+        mvc.perform(
+                post("/api/v1/employees")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(employeeRequest))
+        ).andExpect(status().isConflict());
 
         verify(employeeService).create(employeeRequest);
     }
