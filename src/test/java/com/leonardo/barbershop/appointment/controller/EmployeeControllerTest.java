@@ -14,8 +14,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.UUID;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -68,5 +67,18 @@ class EmployeeControllerTest {
         ).andExpect(status().isConflict());
 
         verify(employeeService).create(employeeRequest);
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenCreatingInvalidEmployee() throws Exception {
+        EmployeeRequest employeeRequest = new EmployeeRequest("Name", "(1234) 90000-0000", "emp@email.com");
+
+        mvc.perform(
+                post("/api/v1/employees")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(employeeRequest))
+        ).andExpect(status().isBadRequest());
+
+        verify(employeeService, never()).create(any());
     }
 }
