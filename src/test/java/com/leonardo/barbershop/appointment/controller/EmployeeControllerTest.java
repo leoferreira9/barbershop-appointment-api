@@ -3,6 +3,7 @@ package com.leonardo.barbershop.appointment.controller;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeRequest;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeResponse;
 import com.leonardo.barbershop.appointment.exception.EmailAlreadyRegisteredException;
+import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
 import com.leonardo.barbershop.appointment.service.EmployeeService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -80,5 +82,42 @@ class EmployeeControllerTest {
         ).andExpect(status().isBadRequest());
 
         verify(employeeService, never()).create(any());
+    }
+
+    @Test
+    void shouldFindEmployeeById() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        EmployeeResponse employeeResponse = new EmployeeResponse(id, "Name", "(11) 90000-0000", "emp@email.com", true);
+
+        when(employeeService.findById(id))
+                .thenReturn(employeeResponse);
+
+        mvc.perform(
+                get("/api/v1/employees/{id}", id)
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.name").value("Name"))
+                .andExpect(jsonPath("$.phone").value("(11) 90000-0000"))
+                .andExpect(jsonPath("$.email").value("emp@email.com"))
+                .andExpect(jsonPath("$.active").value(true));
+
+        verify(employeeService).findById(id);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenEmployeeDoesNotExist() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+
+        when(employeeService.findById(id))
+                .thenThrow(new EntityNotFoundException("Employee not found with ID: " + id));
+
+        mvc.perform(
+                get("/api/v1/employees/{id}", id)
+        ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value("Employee not found with ID: " + id));
+
+        verify(employeeService).findById(id);
     }
 }
