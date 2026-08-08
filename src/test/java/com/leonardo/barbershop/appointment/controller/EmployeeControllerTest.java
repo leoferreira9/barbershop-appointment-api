@@ -8,11 +8,16 @@ import com.leonardo.barbershop.appointment.service.EmployeeService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
@@ -119,5 +124,29 @@ class EmployeeControllerTest {
                 .andExpect(jsonPath("$.message").value("Employee not found with ID: " + id));
 
         verify(employeeService).findById(id);
+    }
+
+    @Test
+    void shouldReturnAllEmployees() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        EmployeeResponse employeeResponse = new EmployeeResponse(id, "Name", "(11) 90000-0000", "emp@email.com", true);
+        List<EmployeeResponse> list = List.of(employeeResponse);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<EmployeeResponse> page = new PageImpl<>(list, pageable, 1);
+
+        when(employeeService.findAll(null, null, pageable))
+                .thenReturn(page);
+
+        mvc.perform(
+                get("/api/v1/employees")
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].id").value(id.toString()))
+                .andExpect(jsonPath("$.content[0].name").value("Name"))
+                .andExpect(jsonPath("$.content[0].phone").value("(11) 90000-0000"))
+                .andExpect(jsonPath("$.content[0].email").value("emp@email.com"))
+                .andExpect(jsonPath("$.content[0].active").value(true));
+
+        verify(employeeService).findAll(null, null, pageable);
     }
 }
