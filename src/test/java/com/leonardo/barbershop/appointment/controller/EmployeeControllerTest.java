@@ -192,4 +192,24 @@ class EmployeeControllerTest {
 
         verify(employeeService).update(id, updateRequest);
     }
+
+    @Test
+    void shouldReturnConflictWhenUpdatingEmployeeWithRegisteredEmail() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        EmployeeUpdateRequest updateRequest = new EmployeeUpdateRequest("Name", "(11) 90000-0000", "emp@email.com");
+
+        when(employeeService.update(id, updateRequest))
+                .thenThrow(new EmailAlreadyRegisteredException("Email " + updateRequest.email() + " already registered!"));
+
+        mvc.perform(
+                put("/api/v1/employees/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest))
+        ).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Conflict"))
+                .andExpect(jsonPath("$.message").value("Email " + updateRequest.email() + " already registered!"));
+
+        verify(employeeService).update(id, updateRequest);
+    }
 }
