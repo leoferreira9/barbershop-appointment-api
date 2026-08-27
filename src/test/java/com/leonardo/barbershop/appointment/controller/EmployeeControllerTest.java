@@ -173,4 +173,23 @@ class EmployeeControllerTest {
         verify(employeeService).update(id, updateRequest);
     }
 
+    @Test
+    void shouldReturnNotFoundWhenUpdatingNonexistentEmployee() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        EmployeeUpdateRequest updateRequest = new EmployeeUpdateRequest("Name", "(11) 90000-0000", "emp@email.com");
+
+        when(employeeService.update(id, updateRequest))
+                .thenThrow(new EntityNotFoundException("Employee not found with ID: " + id));
+
+        mvc.perform(
+                put("/api/v1/employees/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest))
+        ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value("Employee not found with ID: " + id));
+
+        verify(employeeService).update(id, updateRequest);
+    }
 }
