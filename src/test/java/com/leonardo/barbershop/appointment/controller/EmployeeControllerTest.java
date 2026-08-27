@@ -2,6 +2,7 @@ package com.leonardo.barbershop.appointment.controller;
 
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeRequest;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeResponse;
+import com.leonardo.barbershop.appointment.dto.employee.EmployeeUpdateRequest;
 import com.leonardo.barbershop.appointment.exception.EmailAlreadyRegisteredException;
 import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
 import com.leonardo.barbershop.appointment.service.EmployeeService;
@@ -21,8 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -149,4 +149,28 @@ class EmployeeControllerTest {
 
         verify(employeeService).findAll(null, null, pageable);
     }
+
+    @Test
+    void shouldUpdateEmployee() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        EmployeeUpdateRequest updateRequest = new EmployeeUpdateRequest("Name", "(11) 90000-0000", "emp@email.com");
+        EmployeeResponse employeeResponse = new EmployeeResponse(id, "Name", "(11) 90000-0000", "emp@email.com", true);
+
+        when(employeeService.update(id, updateRequest))
+                .thenReturn(employeeResponse);
+
+        mvc.perform(
+                put("/api/v1/employees/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest))
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.name").value("Name"))
+                .andExpect(jsonPath("$.phone").value("(11) 90000-0000"))
+                .andExpect(jsonPath("$.email").value("emp@email.com"))
+                .andExpect(jsonPath("$.active").value(true));
+
+        verify(employeeService).update(id, updateRequest);
+    }
+
 }
