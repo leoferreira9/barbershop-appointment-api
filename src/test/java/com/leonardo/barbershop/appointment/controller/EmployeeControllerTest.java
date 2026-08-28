@@ -1,5 +1,6 @@
 package com.leonardo.barbershop.appointment.controller;
 
+import com.leonardo.barbershop.appointment.dto.employee.EmployeePatchRequest;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeRequest;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeResponse;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeUpdateRequest;
@@ -229,4 +230,26 @@ class EmployeeControllerTest {
                 .update(any(UUID.class), any(EmployeeUpdateRequest.class));
     }
 
+    @Test
+    void shouldPartiallyUpdateEmployee() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        EmployeePatchRequest patchRequest = new EmployeePatchRequest(null, null, "emp2@gmail.com");
+        EmployeeResponse employeeResponse = new EmployeeResponse(id, "Name", "(11) 90000-0000", "emp2@gmail.com", true);
+
+        when(employeeService.partialUpdate(id, patchRequest))
+                .thenReturn(employeeResponse);
+
+        mvc.perform(
+                patch("/api/v1/employees/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(patchRequest))
+        ).andExpect(status().isOk())
+                        .andExpect(jsonPath("$.id").value(id.toString()))
+                        .andExpect(jsonPath("$.name").value("Name"))
+                        .andExpect(jsonPath("$.phone").value("(11) 90000-0000"))
+                        .andExpect(jsonPath("$.email").value("emp2@gmail.com"))
+                        .andExpect(jsonPath("$.active").value(true));
+
+        verify(employeeService).partialUpdate(id, patchRequest);
+    }
 }
