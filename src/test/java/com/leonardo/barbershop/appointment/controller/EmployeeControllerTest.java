@@ -252,4 +252,25 @@ class EmployeeControllerTest {
 
         verify(employeeService).partialUpdate(id, patchRequest);
     }
+
+    @Test
+    void shouldReturnNotFoundWhenPartiallyUpdatingNonexistentEmployee() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        EmployeePatchRequest patchRequest = new EmployeePatchRequest(null, null, "emp2@gmail.com");
+
+        when(employeeService.partialUpdate(id, patchRequest))
+                .thenThrow(new EntityNotFoundException("Employee not found with ID: " + id));
+
+        mvc.perform(
+                patch("/api/v1/employees/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(patchRequest))
+        ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value("Employee not found with ID: " + id));
+
+        verify(employeeService).partialUpdate(id, patchRequest);
+    }
+
 }
