@@ -212,4 +212,21 @@ class EmployeeControllerTest {
 
         verify(employeeService).update(id, updateRequest);
     }
+
+    @Test
+    void shouldReturnBadRequestWhenUpdatingInvalidEmployee() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        EmployeeUpdateRequest updateRequest =
+                new EmployeeUpdateRequest("", "(11) 90000-0000", "emp@email.com");
+
+        mvc.perform(
+                put("/api/v1/employees/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest))
+        ).andExpect(status().isBadRequest());
+
+        verify(employeeService, never())
+                .update(any(UUID.class), any(EmployeeUpdateRequest.class));
+    }
+
 }
