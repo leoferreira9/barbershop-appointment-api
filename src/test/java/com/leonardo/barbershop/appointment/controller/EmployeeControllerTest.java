@@ -273,4 +273,23 @@ class EmployeeControllerTest {
         verify(employeeService).partialUpdate(id, patchRequest);
     }
 
+    @Test
+    void shouldReturnConflictWhenPartiallyUpdatingEmployeeWithRegisteredEmail() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+        EmployeePatchRequest patchRequest = new EmployeePatchRequest(null, null, "emp2@gmail.com");
+
+        when(employeeService.partialUpdate(id, patchRequest))
+                .thenThrow(new EmailAlreadyRegisteredException("Email " + patchRequest.email() + " already registered!"));
+
+        mvc.perform(
+                patch("/api/v1/employees/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(patchRequest))
+        ).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Conflict"))
+                .andExpect(jsonPath("$.message").value("Email " + patchRequest.email() + " already registered!"));
+
+        verify(employeeService).partialUpdate(id, patchRequest);
+    }
 }
