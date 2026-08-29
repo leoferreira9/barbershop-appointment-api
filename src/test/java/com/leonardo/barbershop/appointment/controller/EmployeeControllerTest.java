@@ -292,4 +292,23 @@ class EmployeeControllerTest {
 
         verify(employeeService).partialUpdate(id, patchRequest);
     }
+
+    @Test
+    void shouldReturnBadRequestWhenPartiallyUpdatingEmployeeWithNameExceedingMaxLength() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+
+        EmployeePatchRequest patchRequest = new EmployeePatchRequest(
+                "a".repeat(151),
+                "(11) 90000-0000",
+                "emp2@gmail.com"
+        );
+
+        mvc.perform(
+                patch("/api/v1/employees/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(patchRequest))
+        ).andExpect(status().isBadRequest());
+
+        verifyNoInteractions(employeeService);
+    }
 }
