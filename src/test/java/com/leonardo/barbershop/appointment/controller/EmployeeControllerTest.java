@@ -387,4 +387,21 @@ class EmployeeControllerTest {
 
         verify(employeeService).activate(id);
     }
+
+    @Test
+    void shouldReturnNotFoundWhenActivatingNonexistentEmployee() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+
+        when(employeeService.activate(id))
+                .thenThrow(new EntityNotFoundException("Employee not found with ID: " + id));
+
+        mvc.perform(
+                patch("/api/v1/employees/{id}/activate", id)
+        ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value("Employee not found with ID: " + id));
+
+        verify(employeeService).activate(id);
+    }
 }
