@@ -311,4 +311,25 @@ class EmployeeControllerTest {
 
         verifyNoInteractions(employeeService);
     }
+
+    @Test
+    void shouldDeactivateEmployee() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+
+        EmployeeResponse employeeResponse = new EmployeeResponse(id, "Name", "(11) 90000-0000", "emp@email.com", false);
+
+        when(employeeService.deactivate(id))
+                .thenReturn(employeeResponse);
+
+        mvc.perform(
+                patch("/api/v1/employees/{id}/deactivate", id)
+        ).andExpect(status().isOk())
+                        .andExpect(jsonPath("$.id").value(id.toString()))
+                        .andExpect(jsonPath("$.name").value("Name"))
+                        .andExpect(jsonPath("$.phone").value("(11) 90000-0000"))
+                        .andExpect(jsonPath("$.email").value("emp@email.com"))
+                        .andExpect(jsonPath("$.active").value(false));
+
+        verify(employeeService).deactivate(id);
+    }
 }
