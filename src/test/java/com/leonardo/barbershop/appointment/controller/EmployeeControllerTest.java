@@ -5,6 +5,7 @@ import com.leonardo.barbershop.appointment.dto.employee.EmployeeRequest;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeResponse;
 import com.leonardo.barbershop.appointment.dto.employee.EmployeeUpdateRequest;
 import com.leonardo.barbershop.appointment.exception.EmailAlreadyRegisteredException;
+import com.leonardo.barbershop.appointment.exception.EntityAlreadyActivatedException;
 import com.leonardo.barbershop.appointment.exception.EntityAlreadyDeactivatedException;
 import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
 import com.leonardo.barbershop.appointment.service.EmployeeService;
@@ -401,6 +402,23 @@ class EmployeeControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message").value("Employee not found with ID: " + id));
+
+        verify(employeeService).activate(id);
+    }
+
+    @Test
+    void shouldReturnConflictWhenActivatingAlreadyActivatedEmployee() throws Exception {
+        UUID id = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+
+        when(employeeService.activate(id))
+                .thenThrow(new EntityAlreadyActivatedException("Employee already activated"));
+
+        mvc.perform(
+                patch("/api/v1/employees/{id}/activate", id)
+        ).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Conflict"))
+                .andExpect(jsonPath("$.message").value("Employee already activated"));
 
         verify(employeeService).activate(id);
     }
