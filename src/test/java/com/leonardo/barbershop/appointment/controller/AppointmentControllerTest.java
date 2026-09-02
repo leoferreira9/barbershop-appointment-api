@@ -3,6 +3,7 @@ package com.leonardo.barbershop.appointment.controller;
 import com.leonardo.barbershop.appointment.dto.appointment.AppointmentRequest;
 import com.leonardo.barbershop.appointment.dto.appointment.AppointmentResponse;
 import com.leonardo.barbershop.appointment.enums.AppointmentStatus;
+import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
 import com.leonardo.barbershop.appointment.service.AppointmentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,5 +119,34 @@ class AppointmentControllerTest {
         ).andExpect(status().isBadRequest());
 
         verifyNoInteractions(appointmentService);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenCreatingAppointmentWithNonexistentEntity() throws Exception {
+        UUID clientId = UUID.fromString("810b60ad-e152-4656-a8f5-eb8c4d35633a");
+        UUID employeeId = UUID.fromString("810b60ad-e152-4656-a8f5-eb8c4d35633a");
+        UUID serviceItemId = UUID.fromString("810b60ad-e152-4656-a8f5-eb8c4d35633a");
+        LocalDateTime futureDate = LocalDate.now().plusDays(1).atTime(14, 30);
+
+        AppointmentRequest appointmentRequest = new AppointmentRequest(
+                clientId,
+                employeeId,
+                serviceItemId,
+                futureDate
+        );
+
+        when(appointmentService.create(appointmentRequest))
+                .thenThrow(new EntityNotFoundException("Client not found with ID: " + appointmentRequest.clientId()));
+
+        mvc.perform(
+                        post("/api/v1/appointments")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(appointmentRequest))
+                ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value("Client not found with ID: " + appointmentRequest.clientId()));
+
+        verify(appointmentService).create(appointmentRequest);
     }
 }
