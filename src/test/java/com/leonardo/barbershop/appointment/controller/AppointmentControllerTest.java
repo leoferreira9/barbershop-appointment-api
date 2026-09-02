@@ -18,8 +18,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -71,9 +70,6 @@ class AppointmentControllerTest {
                 AppointmentStatus.SCHEDULED
         );
 
-
-
-
         when(appointmentService.create(appointmentRequest))
                 .thenReturn(appointmentResponse);
 
@@ -99,5 +95,28 @@ class AppointmentControllerTest {
                 .andExpect(jsonPath("$.status").value("SCHEDULED"));
 
             verify(appointmentService).create(appointmentRequest);
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenCreatingAppointmentWithInvalidData() throws Exception {
+        UUID clientId = UUID.fromString("810b60ad-e152-4656-a8f5-eb8c4d35633a");
+        UUID employeeId = UUID.fromString("810b60ad-e152-4656-a8f5-eb8c4d35633a");
+        UUID serviceItemId = UUID.fromString("810b60ad-e152-4656-a8f5-eb8c4d35633a");
+        LocalDateTime pastDate = LocalDate.now().minusDays(1).atTime(14, 30);
+
+        AppointmentRequest appointmentRequest = new AppointmentRequest(
+                clientId,
+                employeeId,
+                serviceItemId,
+                pastDate
+        );
+
+        mvc.perform(
+                post("/api/v1/appointments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(appointmentRequest))
+        ).andExpect(status().isBadRequest());
+
+        verifyNoInteractions(appointmentService);
     }
 }
