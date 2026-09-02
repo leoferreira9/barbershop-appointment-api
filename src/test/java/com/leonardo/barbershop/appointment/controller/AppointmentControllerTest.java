@@ -5,6 +5,7 @@ import com.leonardo.barbershop.appointment.dto.appointment.AppointmentResponse;
 import com.leonardo.barbershop.appointment.enums.AppointmentStatus;
 import com.leonardo.barbershop.appointment.exception.EmployeeNotAvailable;
 import com.leonardo.barbershop.appointment.exception.EntityNotFoundException;
+import com.leonardo.barbershop.appointment.exception.ServiceItemNotAvailable;
 import com.leonardo.barbershop.appointment.service.AppointmentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -176,6 +177,35 @@ class AppointmentControllerTest {
                         .andExpect(jsonPath("$.status").value(409))
                         .andExpect(jsonPath("$.error").value("Conflict"))
                         .andExpect(jsonPath("$.message").value("Employee is inactive"));
+
+        verify(appointmentService).create(appointmentRequest);
+    }
+
+    @Test
+    void shouldReturnConflictWhenCreatingAppointmentWithUnavailableServiceItem() throws Exception {
+        UUID clientId = UUID.fromString("810b60ad-e152-4656-a8f5-eb8c4d35633a");
+        UUID employeeId = UUID.fromString("810b60ad-e152-4656-a8f5-eb8c4d35633a");
+        UUID serviceItemId = UUID.fromString("810b60ad-e152-4656-a8f5-eb8c4d35633a");
+        LocalDateTime futureDate = LocalDate.now().plusDays(1).atTime(14, 30);
+
+        AppointmentRequest appointmentRequest = new AppointmentRequest(
+                clientId,
+                employeeId,
+                serviceItemId,
+                futureDate
+        );
+
+        when(appointmentService.create(appointmentRequest))
+                .thenThrow(new ServiceItemNotAvailable("Service item is inactive"));
+
+        mvc.perform(
+                post("/api/v1/appointments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(appointmentRequest))
+                ).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.error").value("Conflict"))
+                .andExpect(jsonPath("$.message").value("Service item is inactive"));
 
         verify(appointmentService).create(appointmentRequest);
     }
