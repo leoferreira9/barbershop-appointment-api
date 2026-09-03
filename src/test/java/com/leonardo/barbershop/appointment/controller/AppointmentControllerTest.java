@@ -10,6 +10,9 @@ import com.leonardo.barbershop.appointment.service.AppointmentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
@@ -276,5 +280,115 @@ class AppointmentControllerTest {
                 .andExpect(jsonPath("$.message").value("Appointment not found with ID: " + appointmentId));
 
         verify(appointmentService).findById(appointmentId);
+    }
+
+    @Test
+    void shouldReturnAllAppointments() throws Exception {
+        LocalDateTime futureDate = LocalDate.now().plusDays(1).atTime(14, 30);
+
+        String expectedAppointmentDate = futureDate.format(
+                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+        );
+
+        AppointmentResponse appointmentResponse = new AppointmentResponse(
+                UUID.fromString("810b60ad-e152-4656-a8f5-eb8c4d35633a"),
+                "Firstname",
+                "Lastname",
+                "(11) 90000-0000",
+                "client@email.com",
+                "EmployeeName",
+                "(11) 80000-0000",
+                "emp@email.com",
+                "ServiceItemName",
+                "serviceItemDescription",
+                new BigDecimal("40"),
+                10,
+                futureDate,
+                AppointmentStatus.SCHEDULED
+        );
+
+        List<AppointmentResponse> list = List.of(appointmentResponse);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(appointmentService.findAll(null, null, null, pageable))
+                .thenReturn(new PageImpl<>(list, pageable, 1));
+
+        mvc.perform(
+                get("/api/v1/appointments")
+                        .param("page", "0")
+                        .param("size", "10")
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value("810b60ad-e152-4656-a8f5-eb8c4d35633a"))
+                .andExpect(jsonPath("$.content[0].clientFirstName").value("Firstname"))
+                .andExpect(jsonPath("$.content[0].clientLastName").value("Lastname"))
+                .andExpect(jsonPath("$.content[0].clientPhone").value("(11) 90000-0000"))
+                .andExpect(jsonPath("$.content[0].clientEmail").value("client@email.com"))
+                .andExpect(jsonPath("$.content[0].employeeName").value("EmployeeName"))
+                .andExpect(jsonPath("$.content[0].employeePhone").value("(11) 80000-0000"))
+                .andExpect(jsonPath("$.content[0].employeeEmail").value("emp@email.com"))
+                .andExpect(jsonPath("$.content[0].serviceItemName").value("ServiceItemName"))
+                .andExpect(jsonPath("$.content[0].serviceItemDescription").value("serviceItemDescription"))
+                .andExpect(jsonPath("$.content[0].serviceItemPrice").value(new BigDecimal("40")))
+                .andExpect(jsonPath("$.content[0].durationMinutes").value(10))
+                .andExpect(jsonPath("$.content[0].appointmentDate").value(expectedAppointmentDate))
+                .andExpect(jsonPath("$.content[0].status").value("SCHEDULED"));
+
+        verify(appointmentService).findAll(null, null, null, pageable);
+    }
+
+    @Test
+    void shouldReturnAppointmentsWithFilters() throws Exception {
+        LocalDateTime futureDate = LocalDate.now().plusDays(1).atTime(14, 30);
+
+        String expectedAppointmentDate = futureDate.format(
+                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+        );
+
+        AppointmentResponse appointmentResponse = new AppointmentResponse(
+                UUID.fromString("810b60ad-e152-4656-a8f5-eb8c4d35633a"),
+                "Firstname",
+                "Lastname",
+                "(11) 90000-0000",
+                "client@email.com",
+                "EmployeeName",
+                "(11) 80000-0000",
+                "emp@email.com",
+                "ServiceItemName",
+                "serviceItemDescription",
+                new BigDecimal("40"),
+                10,
+                futureDate,
+                AppointmentStatus.SCHEDULED
+        );
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(appointmentService.findAll(AppointmentStatus.SCHEDULED, "Firstname", "EmployeeName", pageable))
+                .thenReturn(new PageImpl<>(List.of(appointmentResponse), pageable, 1));
+
+        mvc.perform(
+                get("/api/v1/appointments")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("status", "SCHEDULED")
+                        .param("clientName", "Firstname")
+                        .param("employeeName", "EmployeeName")
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value("810b60ad-e152-4656-a8f5-eb8c4d35633a"))
+                .andExpect(jsonPath("$.content[0].clientFirstName").value("Firstname"))
+                .andExpect(jsonPath("$.content[0].clientLastName").value("Lastname"))
+                .andExpect(jsonPath("$.content[0].clientPhone").value("(11) 90000-0000"))
+                .andExpect(jsonPath("$.content[0].clientEmail").value("client@email.com"))
+                .andExpect(jsonPath("$.content[0].employeeName").value("EmployeeName"))
+                .andExpect(jsonPath("$.content[0].employeePhone").value("(11) 80000-0000"))
+                .andExpect(jsonPath("$.content[0].employeeEmail").value("emp@email.com"))
+                .andExpect(jsonPath("$.content[0].serviceItemName").value("ServiceItemName"))
+                .andExpect(jsonPath("$.content[0].serviceItemDescription").value("serviceItemDescription"))
+                .andExpect(jsonPath("$.content[0].serviceItemPrice").value(new BigDecimal("40")))
+                .andExpect(jsonPath("$.content[0].durationMinutes").value(10))
+                .andExpect(jsonPath("$.content[0].appointmentDate").value(expectedAppointmentDate))
+                .andExpect(jsonPath("$.content[0].status").value("SCHEDULED"));
+
+        verify(appointmentService).findAll(AppointmentStatus.SCHEDULED, "Firstname", "EmployeeName", pageable);
     }
 }
