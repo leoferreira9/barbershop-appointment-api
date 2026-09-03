@@ -260,4 +260,21 @@ class AppointmentControllerTest {
 
         verify(appointmentService).findById(appointmentId);
     }
+
+    @Test
+    void shouldReturnNotFoundWhenAppointmentDoesNotExist() throws Exception {
+        UUID appointmentId = UUID.fromString("810b60ad-e152-4656-a8f5-eb8c4d35633a");
+
+        when(appointmentService.findById(appointmentId))
+                .thenThrow(new EntityNotFoundException("Appointment not found with ID: " + appointmentId));
+
+        mvc.perform(
+                get("/api/v1/appointments/{id}", appointmentId)
+        ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value("Appointment not found with ID: " + appointmentId));
+
+        verify(appointmentService).findById(appointmentId);
+    }
 }
